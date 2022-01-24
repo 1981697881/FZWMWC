@@ -31,7 +31,7 @@
 				</view>
 				<view class="action">
 					<view style="width: 90px;">仓库:</view>
-					<ld-select :list="stockList" list-key="FName" value-key="FNumber" placeholder="请选择" clearable
+					<ld-select :list="stockList" list-key="FName" value-key="FNumber" disabled="true" placeholder="请选择" clearable
 						v-model="form.fdCStockId" @change="stockChange"></ld-select>
 				</view>
 			</view>
@@ -101,7 +101,7 @@
 									<input name="input" style="border-bottom: 1px solid;"
 										v-model="popupForm.positions" />
 									<button class="cu-btn round lines-red line-red shadow"
-										@tap="$manyCk(scanPosition)">扫码</button>
+										@tap="$manyCk(clickScanPosition)">扫码</button>
 								</view>
 							</view>
 						</view>
@@ -125,10 +125,10 @@
 							<view style="clear: both;width: 100%;" @tap="showModal2(index, item)"
 								class="grid text-center col-2" data-target="Modal" data-number="item.number">
 								<view class="text-grey">序号:{{ (item.index = index + 1) }}</view>
-								<view class="text-grey">编码:{{ item.number }}</view>
-								<view class="text-grey">名称:{{ item.name }}</view>
-								<view class="text-grey">规格:{{ item.model }}</view>
-								<view class="text-grey">单位:{{ item.unitName }}</view>
+								<view class="text-grey">编码:{{ item.FNumber }}</view>
+								<view class="text-grey">名称:{{ item.FName }}</view>
+								<view class="text-grey">规格:{{ item.FModel }}</view>
+								<view class="text-grey">单位:{{ item.FUnitName }}</view>
 								<view class="text-grey">{{ item.FNoteType }}</view>
 								<view class="text-grey">批号:{{ item.fbatchNo }}</view>
 								<view class="text-grey">数量:{{ item.quantity }}</view>
@@ -367,17 +367,26 @@
 				};
 				this.borrowItem = item;
 			},
+			clickScanPosition(){
+				let me = this
+				uni.scanCode({
+					success: function(res) {
+						me.scanPosition(res.result)
+					},
+				})
+			},
 			scanPosition(res) {
 				let me = this
 				basic.selectFdCStockIdByFdCSPId({
 					'FNumber': res,
 					'FName': res
 				}).then(reso => {
+					console.log(reso)
 					if (reso.data != null && reso.data != '') {
-						me.popupForm.positions = res.result;
-						me.popupForm.stockName = reso.data['stockName'];
-						me.popupForm.stockId = reso.data['stockNumber'];
-						me.popupForm.FIsStockMgr = reso.data['FIsStockMgr'];
+						me.popupForm.positions = res;
+						me.popupForm.stockName = reso.data['FName'];
+						me.popupForm.stockId = reso.data['FNumber'];
+						me.popupForm.FIsStockMgr = '';
 					} else {
 						uni.showToast({
 							icon: 'none',
@@ -385,11 +394,7 @@
 						});
 					}
 				})
-				/* uni.scanCode({
-					success: function(res) {
-						
-					},
-				}) */
+				
 			},
 			saveCom() {
 				var me = this;
@@ -418,18 +423,18 @@
 					}).then(reso => {
 						if (reso.data != null && reso.data != '') {
 							if (reso.data['FIsStockMgr']) {
-								me.borrowItem.stockName = reso.data['stockName'];
+								me.borrowItem.stockName = reso.data['FName'];
 								me.borrowItem.stockId = reso.data['stockNumber'];
-								me.borrowItem.FIsStockMgr = reso.data['FIsStockMgr'];
+								me.borrowItem.FIsStockMgr = reso.data['FNumber'];
 								me.borrowItem.positions = me.popupForm.positions;
 								me.borrowItem.quantity = me.popupForm.quantity;
 								me.borrowItem.fbatchNo = me.popupForm.fbatchNo;
 								me.modalName2 = null;
 							} else {
-								me.borrowItem.stockName = reso.data['stockName'];
-								me.borrowItem.stockId = reso.data['stockNumber'];
+								me.borrowItem.stockName = reso.data['FName'];
+								me.borrowItem.stockId = reso.data['FNumber'];
 								me.borrowItem.FIsStockMgr = reso.data['FIsStockMgr'];
-								me.borrowItem.positions = '';
+								me.borrowItem.positions = me.popupForm.positions;
 								me.borrowItem.quantity = me.popupForm.quantity;
 								me.borrowItem.fbatchNo = me.popupForm.fbatchNo;
 								me.modalName2 = null;
@@ -555,8 +560,14 @@
 					obj.fauxprice = list[i].Fauxprice != null && typeof list[i].Fauxprice != 'undefined' ? list[i]
 						.Fauxprice : 0;
 					obj.famount = list[i].Famount != null && typeof list[i].Famount != 'undefined' ? list[i].Famount : 0;
+					if (list[i].positions == null || typeof list[i].positions == '') {
+						result.push(list[i].index);
+					}
+					if (list[i].fbatchNo == null || typeof list[i].fbatchNo == 'undefined') {
+						result.push(list[i].index);
+					}
 					obj.fdCSPId = list[i].positions;
-					obj.fitemId = list[i].number;
+					obj.fitemId = list[i].FNumber;
 					obj.fbatchNo = list[i].fbatchNo;
 					obj.fpackNum = list[i].bNum;
 					if (list[i].stockId == null || typeof list[i].stockId == 'undefined') {
@@ -569,7 +580,7 @@
 						list[i].fsourceEntryID;
 					obj.fsourceTranType = list[i].fsourceTranType == null || list[i].fsourceTranType == 'undefined' ? '' :
 						list[i].fsourceTranType;
-					obj.funitId = list[i].unitID;
+					obj.funitId = list[i].FUnitNumber;
 					array.push(obj);
 				}
 				portData.items = array;
@@ -581,6 +592,7 @@
 				portData.fsupplyId = this.form.FSupplyID;
 				portData.fpostyle = this.form.FPOStyle;
 				portData.fdeptId = this.form.fdeptID;
+				console.log(portData)
 				if (result.length == 0) {
 					if (portData.fsupplyId != '' && typeof portData.fsupplyId != 'undefined') {
 						procurement
@@ -606,6 +618,8 @@
 											});
 										}, 1000);
 									}
+								}else{
+									me.isClick = false;
 								}
 							})
 							.catch(err => {
@@ -625,7 +639,7 @@
 				} else {
 					uni.showToast({
 						icon: 'none',
-						title: '仓库不允许为空'
+						title: '仓库，仓位和批号不允许为空'
 					});
 					this.isClick = false;
 				}
@@ -718,15 +732,16 @@
 						number: resData[0]
 					})
 					.then(reso => {
+						console.log(reso)
 						if (reso.success) {
 							if (that.isOrder) {
 								for (let i in that.cuIList) {
 									if (resData[0] == that.cuIList[i]['number']) {
 										if (that.cuIList[i]['onFBarCode'].indexOf(res) == -1) {
-											that.cuIList[i]['quantity'] = 1;
-											that.cuIList[i]['bNum'] = 1;
+											that.cuIList[i]['quantity'] = parseFloat(that.cuIList[i][
+												'quantity'
+											]) + 1
 											that.cuIList[i]['onFBarCode'].push(res)
-											that.form.bNum += 1;
 											break;
 										} else {
 											uni.showToast({
@@ -750,10 +765,10 @@
 									for (let i in that.cuIList) {
 										if (resData[0] == that.cuIList[i]['number']) {
 											if (that.cuIList[i]['onFBarCode'].indexOf(res) == -1) {
-												that.cuIList[i]['quantity'] = 1;
-												that.cuIList[i]['bNum'] = 1;
+												that.cuIList[i]['quantity'] = parseFloat(that.cuIList[i][
+													'quantity'
+												]) + 1
 												that.cuIList[i]['onFBarCode'].push(res)
-												that.form.bNum += 1;
 												break;
 											} else {
 												uni.showToast({
@@ -763,39 +778,17 @@
 												break;
 											}
 										} else {
-											that.form.bNum += 1;
-											that.cuIList.push({
-												number: resData[1],
-												name: resData[2],
-												model: resData[3],
-												quantity: 1,
-												unitID: reso.data.unitNumber,
-												unitName: reso.data.unitName,
-												fbatchNo: '',
-												/* stockName: that.stockList[0].FName,
-												stockId: that.stockList[0].FNumber,
-												FIsStockMgr: that.stockList[0].FIsStockMgr, */
-												bNum: 1,
-												onFBarCode: [res],
-											});
+											reso.data[0]['quantity'] = 1
+											reso.data[0]['onFBarCode'] = [res]
+											that.cuIList.push(reso.data[0])
+											that.form.bNum = that.cuIList.length
 										}
 									}
 								} else {
-									that.form.bNum = 1;
-									that.cuIList.push({
-										number: resData[1],
-										name: resData[2],
-										model: resData[3],
-										quantity: 1,
-										unitID: reso.data.unitNumber,
-										unitName: reso.data.unitName,
-										fbatchNo: '',
-										/* stockName: that.stockList[0].FName,
-										stockId: that.stockList[0].FNumber,
-										FIsStockMgr: that.stockList[0].FIsStockMgr, */
-										bNum: 1,
-										onFBarCode: [res],
-									});
+									reso.data[0]['quantity'] = 1
+									reso.data[0]['onFBarCode'] = [res]
+									that.cuIList.push(reso.data[0])
+									that.form.bNum = that.cuIList.length
 								}
 							}
 						}

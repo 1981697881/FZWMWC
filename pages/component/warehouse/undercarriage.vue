@@ -105,8 +105,8 @@
 									<view class="title">库位:</view>
 									<input name="input" style="border-bottom: 1px solid;"
 										v-model="popupForm.positions"></input>
-									<button class="cu-btn round lines-red line-red shadow"
-										@tap="$manyCk(scanPosition)">扫码</button>
+									<<!-- button class="cu-btn round lines-red line-red shadow"
+										@tap="$manyCk(scanPosition)">扫码</button> -->
 							</view>
 								</view>
 						</view>
@@ -128,12 +128,12 @@
 						@touchmove="ListTouchMove" @touchend="ListTouchEnd" :data-target="'move-box-' + index">
 						<view style="clear: both;width: 100%;" class="grid text-center col-2"
 							@tap="showModal2(index, item)" data-target="Modal" data-number="item.number">
-							<view class="text-grey">{{item.barcode}}</view>
-							<view class="text-grey">{{item.name}}</view>
 							<view class="text-grey">序号:{{index + 1}}</view>
+							<view class="text-grey">编码:{{ item.FNumber }}</view>
+							<view class="text-grey">名称:{{ item.FName }}</view>
 							<view class="text-grey">数量:{{item.quantity}}</view>
-							<view class="text-grey">批号:{{item.batchno}}</view>
-							<view class="text-grey">单位:{{item.unitName}}</view>
+							<view class="text-grey">批号:{{item.FBatchNo}}</view>
+							<view class="text-grey">单位:{{item.FUnitName}}</view>
 							<view class="text-grey">仓库:{{item.warehouse}}</view>
 							<view class="text-grey">仓位:{{item.positions}}</view>
 							<!-- <view class="text-grey">{{item.stockName==undefined?'':stockList[item.stockName].FName}}</view>
@@ -509,16 +509,16 @@
 										break;
 									}
 								} else {
-									reso.data['quantity'] = 1
-									reso.data['onFBarCode'] = [res]
-									that.cuIList.push(reso.data)
+									reso.data[0]['quantity'] = 1
+									reso.data[0]['onFBarCode'] = [res]
+									that.cuIList.push(reso.data[0])
 									that.form.bNum = that.cuIList.length
 								}
 							}
 						} else {
-							reso.data['quantity'] = 1
-							reso.data['onFBarCode'] = [res]
-							that.cuIList.push(reso.data)
+							reso.data[0]['quantity'] = 1
+							reso.data[0]['onFBarCode'] = [res]
+							that.cuIList.push(reso.data[0])
 							that.form.bNum = that.cuIList.length
 						}
 					}

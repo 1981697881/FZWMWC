@@ -5,6 +5,15 @@
 			<block slot="backText">返回</block>
 			<block slot="content">领料</block>
 		</cu-custom>
+		<uni-fab
+		:pattern="pattern"
+		:horizontal="horizontal"
+		:vertical="vertical"
+		:popMenu="popMenu"
+		distable
+		:direction="direction"
+		 @fabClick="fabClick"
+		 ></uni-fab>
 		<zhilin-picker v-model="show" :data="chooseList" :title="title" @confirm="chooseClick" />
 		<view class="box getheight">
 			<view class="cu-bar bg-white solid-bottom" style="height: 60upx;">
@@ -159,10 +168,10 @@
 							@click="_showlv2(index)">
 							<view style="clear: both;width: 100%;" class="grid text-center col-2">
 								<view class="itemT">编码:{{ item.number }}</view>
-								<view class="itemT">单位:{{ item.unitName }}</view>
-								<view class="itemT" style="width: 85% !important;text-align: left;margin-left: 110rpx;">
+								<view class="itemT">
 									名称:{{ item.name }}</view>
-								<view class="itemT" style="width: 85% !important;text-align: left;margin-left: 110rpx;">
+								<view class="itemT">单位:{{ item.unitName }}</view>
+								<view class="itemT">
 									规格:{{ item.model }}</view>
 								<view class="itemT">应发数量:{{ item.Fauxqty }}</view>
 								<view class="itemT">实际数量:{{ item.FCounty }}</view>
@@ -427,8 +436,11 @@
 					}
 				} else {
 					basic
-						.selectInvListByItemNumber({
+						/* .selectInvListByItemNumber({
 							itemNumber: this.cuIList[index].number
+						}) */
+						.inventoryByBarcode({
+							uuid: this.cuIList[index].number + "," + this.cuIList[index].FBatchNo
 						})
 						.then(reso => {
 							if (reso.success) {
@@ -482,8 +494,11 @@
 					this.$set(this.cuIList[index], "show", true);
 				} else {
 					basic
-						.selectInvListByItemNumber({
+						/* .selectInvListByItemNumber({
 							itemNumber: this.cuIList[index].number
+						}) */
+						.inventoryByBarcode({
+							uuid: this.cuIList[index].number + "," + this.cuIList[index].FBatchNo
 						})
 						.then(reso => {
 							if (reso.success) {
@@ -617,6 +632,7 @@
 			},
 			initMain() {
 				const me = this;
+				me.resultA = [];
 				this.form.fdate = this.getDay('', 0).date;
 				basic
 					.getBillNo({
@@ -961,6 +977,9 @@
 				var that = this;
 				var choose = val;
 				let number = 0;
+				if(val.length == 0){
+					that.resultA = [];
+				}
 				for (let j in choose) {
 					if (that.isOrder) {
 						for (let i in that.cuIList) {
@@ -1073,11 +1092,12 @@
 					})
 					.then(reso => {
 						if (reso.success) {
-							that.chooseList = [];
+							that.chooseClick([reso.data[0]]);
+							/* that.chooseList = [];
 							for (let i in reso.data) {
 								that.chooseList.push(reso.data[i]);
 							}
-							that.show = true;
+							that.show = true; */
 						}
 					})
 					.catch(err => {

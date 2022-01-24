@@ -5,6 +5,15 @@
 			<block slot="content">销售出库</block>
 		</cu-custom>
 		<loading :loadModal="loadModal"></loading>
+		<uni-fab
+		:pattern="pattern"
+		:horizontal="horizontal"
+		:vertical="vertical"
+		:popMenu="popMenu"
+		distable
+		:direction="direction"
+		 @fabClick="fabClick"
+		 ></uni-fab>
 		<zhilin-picker v-model="show" :data="chooseList" :title="title" @confirm="chooseClick" />
 		<view class="box getheight">
 			<view class="cu-bar bg-white solid-bottom" style="height: 60upx;">
@@ -403,7 +412,10 @@ export default {
 				}
 			} else {
 				basic
-					.selectInvListByItemNumber({ itemNumber: this.cuIList[index].number })
+					.inventoryByBarcode({
+						uuid: this.cuIList[index].number+","+this.cuIList[index].FBatchNo
+					})
+					/* .selectInvListByItemNumber({ itemNumber: this.cuIList[index].number }) */
 					.then(reso => {
 						console.log(reso)
 						if (reso.success) {
@@ -445,7 +457,6 @@ export default {
 					this.$set(this.cuIList[index], 'checked', true);
 					this.cuIList[index].childrenList.forEach(item => {
 						item.checked = true;
-						console.log(item);
 						if (item.quantity == '' || item.quantity == null) {
 							count += Number(0);
 						} else {
@@ -457,7 +468,10 @@ export default {
 				this.$set(this.cuIList[index], 'show', true);
 			} else {
 				basic
-					.selectInvListByItemNumber({ itemNumber: this.cuIList[index].number })
+				.inventoryByBarcode({
+					uuid: this.cuIList[index].number+","+this.cuIList[index].FBatchNo
+				})
+					/* .selectInvListByItemNumber({ itemNumber: this.cuIList[index].number }) */
 					.then(reso => {
 						if (reso.success) {
 							let data = reso.data;
@@ -588,6 +602,7 @@ export default {
 		},
 		initMain() {
 			const me = this;
+			me.resultA = [];
 			this.form.fdate = this.getDay('', 0).date;
 			basic
 				.getBillNo({ TranType: 21 })
@@ -656,7 +671,6 @@ export default {
 			let cIndex = 0;
 			for (let i in list) {
 				let children = list[i].childrenList;
-				console.log(list[i]);
 				children.forEach((item, index) => {
 					if (item.checked) {
 						cIndex++;
@@ -716,7 +730,6 @@ export default {
 				this.isClick = false;
 				return;
 			}
-			console.log(JSON.stringify(portData));
 			//if (result.length == 0) {
 			if (portData.fcustId != '' && typeof portData.fcustId != 'undefined') {
 				//if (isBatchNo) {
@@ -950,6 +963,9 @@ export default {
 			var that = this;
 			var choose = val;
 			let number = 0;
+			if(val.length == 0){
+				that.resultA = [];
+			}
 			for (let j in choose) {
 				if (that.isOrder) {
 					for (let i in that.cuIList) {
@@ -1027,7 +1043,6 @@ export default {
 						choose[j].unitName = choose[j].FUnitName;
 						choose[j].model = choose[j].FModel;
 						choose[j].unitID = choose[j].FUnitID;
-						choose[j];
 						that.cuIList.push(choose[j]);
 						that.form.bNum = that.cuIList.length;
 					}
@@ -1054,12 +1069,13 @@ export default {
 				.then(reso => {
 					console.log(reso.data)
 					if (reso.success) {
-						let data = reso.data;
+						that.chooseClick([reso.data[0]]);
+						/* let data = reso.data;
 						that.chooseList = []
 						for(let i in reso.data) {
 							that.chooseList.push(reso.data[i])				
 						} 
-						that.show = true 
+						that.show = true */
 					}
 				})
 				.catch(err => {

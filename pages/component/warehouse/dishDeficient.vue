@@ -5,8 +5,8 @@
 			<block slot="backText">返回</block>
 			<block slot="content">盘点单</block>
 		</cu-custom>
-		<!-- <uni-fab :pattern="pattern" :horizontal="horizontal" :vertical="vertical" :popMenu="popMenu" distable :direction="direction" @fabClick="fabClick"></uni-fab>
-		 -->
+		<uni-fab :pattern="pattern" :horizontal="horizontal" :vertical="vertical" :popMenu="popMenu" distable :direction="direction" @fabClick="fabClick"></uni-fab>
+	
 		<view class="box getheight">
 			<view class="cu-bar bg-white solid-bottom" style="height: 60upx;">
 				<view class="action">
@@ -104,7 +104,7 @@
 							<view class="text-grey">规格:{{ item.FModel }}</view>
 							<view class="text-grey">单位:{{ item.FUnitName }}</view>
 							<view class="text-grey">盘点数量:{{ item.fauxqty }}</view>
-							<view class="text-grey"></view>
+							<view class="text-grey">{{ item.FStockPlacename }}</view>
 							<view class="text-grey">仓库:{{ item.FStockName }}</view>
 							<!-- <view class="text-grey">
 								<picker @change="PickerChange($event, item)" :value="pickerVal" :range-key="'FName'" :range="stockList">
@@ -259,7 +259,7 @@
 			},
 			initMain() {
 				const me = this;
-
+				me.resultA = [];
 				me.form.fdate = me.getDay('', 0).date;
 				basic
 					.getDeptList({})
@@ -311,8 +311,9 @@
 						obj.fbatchNo = list[i].FBatchNo;
 						obj.fdCStockId = list[i].FStockNumber;
 						obj.fentryId = list[i].index;
+						obj.fdCSPId = list[i].FStockPlacename;
 						obj.fitemId = list[i].FNumber;
-						obj.fdCSPId = list[i].positions;
+						/* obj.fdCSPId = list[i].positions; */
 						obj.funitId = list[i].FUnitID;
 						arrayO.push(obj);
 					} else {
@@ -322,6 +323,7 @@
 						obj.famount = list[i].Famount != null && typeof list[i].Famount != 'undefined' ? list[i].Famount :
 							0;
 						obj.fauxqty = list[i].fauxqty;
+						obj.fdCSPId = list[i].FStockPlacename;
 						obj.fauxqtyActual = list[i].quantity;
 						obj.fauxQtyMust = list[i].FQty;
 						obj.fqty = list[i].fauxqty;
@@ -329,7 +331,7 @@
 						obj.fdCStockId = list[i].FStockNumber;
 						obj.fentryId = list[i].index;
 						obj.fitemId = list[i].FNumber;
-						obj.fdCSPId = list[i].positions;
+						/* obj.fdCSPId = list[i].positions; */
 						obj.funitId = list[i].FUnitID;
 						arrayT.push(obj);
 					}
