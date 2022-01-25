@@ -215,9 +215,12 @@ export default {
 		//获取扫码结果
 		getScanInfo(res) {
 			var that = this;
-			if (that.resultA.indexOf(res) == -1) {
+			/* if (that.resultA.indexOf(res) == -1) { */
+				let resData = res.split(';');
 				basic
-					.inventoryByBarcode({ uuid: res })
+					.inventoryByBarcode({
+						uuid: resData[0] + "," + resData[1]
+					})
 					.then(reso => {
 						if (reso.success) {
 							that.cuIconList = []
@@ -239,8 +242,8 @@ export default {
 							title: err.msg
 						});
 					});
-				that.resultA.push(res.result);
-			}
+				/* that.resultA.push(res.result);
+			} */
 		},
 		// 查询条件过滤
 		qFilter() {

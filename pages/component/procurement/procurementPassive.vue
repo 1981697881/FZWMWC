@@ -81,7 +81,7 @@
 								<view class="cu-form-group">
 									<view class="title">批号:</view>
 									<input name="input" style="border-bottom: 1px solid;"
-										v-model="popupForm.fbatchNo" />
+										v-model="popupForm.fbatchNo" disabled />
 								</view>
 							</view>
 							<view class="flex-sub">
@@ -779,6 +779,7 @@
 											}
 										} else {
 											reso.data[0]['quantity'] = 1
+											reso.data[0]['fbatchNo'] = resData[1]
 											reso.data[0]['onFBarCode'] = [res]
 											that.cuIList.push(reso.data[0])
 											that.form.bNum = that.cuIList.length
@@ -786,6 +787,7 @@
 									}
 								} else {
 									reso.data[0]['quantity'] = 1
+									reso.data[0]['fbatchNo'] = resData[1]
 									reso.data[0]['onFBarCode'] = [res]
 									that.cuIList.push(reso.data[0])
 									that.form.bNum = that.cuIList.length
