@@ -24,20 +24,18 @@
 				</view>
 			</view>
 			<view class="cu-bar bg-white solid-bottom" style="height: 60upx;">
-				<view class="action">
+				<!-- <view class="action">
 					<view style="width: 90px;">部门:</view>
 					<ld-select :list="deptList" list-key="FName" value-key="FNumber" placeholder="请选择" clearable
 						v-model="form.fdeptID" :value="form.fdeptID" @change="deptChange"></ld-select>
-				</view>
+				</view> -->
 				<view class="action">
 					<view style="width: 90px;">仓库:</view>
-					<ld-select :list="stockList" list-key="FName" value-key="FNumber" disabled="true" placeholder="请选择" clearable
+					<ld-select :list="stockList" list-key="FName" value-key="FNumber"  placeholder="请选择" clearable
 						v-model="form.fdCStockId" @change="stockChange"></ld-select>
 				</view>
-			</view>
-			<view class="cu-bar bg-white solid-bottom" style="height: 60upx;">
 				<view class="action">
-					<view class="title">供应商:{{ form.FSupplyName }}</view>
+					<view style="width: 50px;">供应商:</view>
 					<!-- <ld-select :list="supplierList"
 				list-key="FName" value-key="FNumber"
 				placeholder="请选择"
@@ -45,10 +43,14 @@
 				
 				:value="form.FSupplyID"
 				@change="supplierChange"></ld-select> -->
+				<text style="width: 170rpx;">{{ form.FSupplyName }}</text>
 				</view>
 				<button class="cu-btn round lines-blue line-blue shadow" @tap="showModal" :disabled="isDis"
 					data-target="Modal">选择</button>
 			</view>
+			<!-- <view class="cu-bar bg-white solid-bottom" style="height: 60upx;">
+				
+			</view> -->
 			<view class="cu-bar bg-white solid-bottom" style="height: 60upx;">
 				<view class="action">
 					<view class="title" style="width: 90px;">备注:</view>

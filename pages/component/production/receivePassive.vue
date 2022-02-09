@@ -5,15 +5,8 @@
 			<block slot="backText">返回</block>
 			<block slot="content">领料</block>
 		</cu-custom>
-		<uni-fab
-		:pattern="pattern"
-		:horizontal="horizontal"
-		:vertical="vertical"
-		:popMenu="popMenu"
-		distable
-		:direction="direction"
-		 @fabClick="fabClick"
-		 ></uni-fab>
+		<uni-fab :pattern="pattern" :horizontal="horizontal" :vertical="vertical" :popMenu="popMenu" distable
+			:direction="direction" @fabClick="fabClick"></uni-fab>
 		<zhilin-picker v-model="show" :data="chooseList" :title="title" @confirm="chooseClick" />
 		<view class="box getheight">
 			<view class="cu-bar bg-white solid-bottom" style="height: 60upx;">
@@ -38,30 +31,38 @@
 						v-model="form.fdeptID" @change="deptChange"></ld-select>
 				</view>
 				<view class="action">
-					<view style="width: 90px;">仓库:</view>
-					<ld-select :list="stockList" disabled list-key="FName" value-key="FNumber" placeholder="请选择"
-						clearable v-model="form.fdCStockId" @change="stockChange"></ld-select>
+					<view style="width: 90px;">领料人:</view>
+					<ld-select :list="empList" list-key="FName" value-key="FNumber" placeholder="请选择" clearable
+						v-model="form.FSManagerID" @change="empChange"></ld-select>
 				</view>
+			</view>
+			<view class="cu-bar bg-white solid-bottom" style="height: 60upx;">
+				<view class="action">
+					<view class="title">成本核算对象:</view>
+					<input name="input" style="font-size: 13px;text-align: left;" v-model="form.FCostObjNumber" />
+				</view>
+				<button class="cu-btn round lines-blue line-blue shadow" @tap="showModal"
+					data-target="Modal">扫码</button>
 			</view>
 			<view class="cu-bar bg-white solid-bottom" style="height: 60upx;">
 				<view class="action">
 					<view class="title">备注:</view>
 					<input name="input" style="font-size: 13px;text-align: left;" v-model="form.fnote" />
 				</view>
-				<button class="cu-btn round lines-blue line-blue shadow" @tap="showModal"
-					data-target="Modal">详情</button>
+				<!-- <button class="cu-btn round lines-blue line-blue shadow" @tap="showModal"
+					data-target="Modal">详情</button> -->
 			</view>
 		</view>
 		<view class="cu-modal" :class="modalName == 'Modal' ? 'show' : ''">
 			<view class="cu-dialog" style="height: 350upx;">
 				<view class="cu-bar bg-white justify-end" style="height: 60upx;">
-					<view class="content">温馨提示</view>
+					<view class="content">扫描</view>
 					<view class="action" @tap="hideModal"><text class="cuIcon-close text-red"></text></view>
 				</view>
 				<view class="padding-sm">
 					<view class="cu-item">
 						<view class="content">
-							<text class="text-grey">用户：{{ form.username }}</text>
+							<text class="text-grey">{{form.FCostObjNumber}}</text>
 						</view>
 						<view class="action"><text class="text-grey"></text></view>
 					</view>
@@ -280,7 +281,11 @@
 					fnote: '',
 					fbillerID: null,
 					fdCStockId: '',
-					fdeptID: ''
+					fdeptID: '',
+					FSManagerID: '',
+					FCostObjName: '',
+					FCostObjNumber: '',
+
 				},
 				borrowItem: {},
 				popupForm: {
@@ -289,9 +294,11 @@
 					quantity: ''
 				},
 				skin: false,
+				isScanOf: false,
 				listTouchStart: 0,
 				listTouchDirection: null,
 				deptList: [],
+				empList: [],
 				chooseList: [],
 				stockList: [],
 				horizontal: 'right',
@@ -312,14 +319,20 @@
 		onUnload() {
 			// 移除监听事件
 			uni.$off('scancodedate');
+			this.isScanOf = true;
 		},
 		onLoad: function(option) {
 			let me = this;
 			me.loadModal = true;
 			uni.$on('scancodedate', function(data) {
+				me.isScanOf = true;
 				// _this 这里面的方法用这个 _this.code(data.code)
 				if (!me.isOrder) {
-					me.getScanInfo(data.code);
+					if (me.modalName == null) {
+						me.getScanInfo(data.code);
+					} else {
+						me.scanCostObject(data.code);
+					}
 				}
 			});
 			me.initMain();
@@ -662,6 +675,16 @@
 							title: err.msg
 						});
 					});
+				basic.getEmpList({}).then(res => {
+					if (res.success) {
+						me.empList = res.data
+					}
+				}).catch(err => {
+					uni.showToast({
+						icon: 'none',
+						title: err.msg,
+					});
+				});
 				basic
 					.getStockList({})
 					.then(res => {
@@ -694,6 +717,7 @@
 						if (item.checked) {
 							cIndex++
 							let obj = {};
+							obj.fcostobjid = me.form.FCostObjNumber;
 							obj.fauxqty = item.quantity;
 							obj.fentryId = cIndex;
 							obj.finBillNo = item.FBillNo;
@@ -734,6 +758,7 @@
 							obj.fsourceTranType = list[i].fsourceTranType == null || list[i].fsourceTranType ==
 								'undefined' ? '' : list[i].fsourceTranType;
 							obj.funitId = item.FUnitID;
+
 							array.push(obj);
 						}
 					})
@@ -744,6 +769,15 @@
 				portData.fdate = this.form.fdate;
 				portData.fdeptId = this.form.fdeptID;
 				portData.fbillerID = this.form.fbillerID;
+				portData.fsmanagerid = this.form.FSManagerID;
+				if (portData.fsmanagerid == '' || typeof portData.fsmanagerid == 'undefined') {
+					uni.showToast({
+						icon: 'none',
+						title: '领料人不能为空'
+					});
+					this.isClick = false;
+					return
+				}
 				console.log(JSON.stringify(portData));
 				/* if (result.length == 0) {
 					if (isBatchNo) { */
@@ -863,7 +897,19 @@
 				this.form.bNum = this.cuIList.length;
 			},
 			showModal(e) {
-				this.modalName = e.currentTarget.dataset.target;
+				let me = this;
+				console.log(this.isScanOf)
+				if (me.isScanOf) {
+					me.modalName = e.currentTarget.dataset.target;
+				} else {
+					uni.scanCode({
+						success: function(res) {
+							console.log(res)
+							me.form.FCostObjName = res.result;
+							me.form.FCostObjNumber = res.result;
+						}
+					});
+				}
 			},
 			showModal2(index, item) {
 				/* if (item.stockId == null || item.stockId == '') {
@@ -892,6 +938,7 @@
 			},
 			hideModal(e) {
 				this.modalName = null;
+
 			},
 			hideModal2(e) {
 				this.modalName2 = null;
@@ -925,6 +972,9 @@
 			},
 			deptChange(val) {
 				this.form.fdeptID = val;
+			},
+			empChange(val) {
+				this.form.FSManagerID = val;
 			},
 			stockChange(val) {
 				let sList = this.stockList;
@@ -972,12 +1022,30 @@
 					}
 				});
 			},
+			scanCostObject(res) {
+				let me = this;
+				me.form.FCostObjName = res;
+				me.form.FCostObjNumber = res;
+				/* uni.scanCode({
+					success: function(res) {
+						basic.selectFdCStockIdByFdCSPId({
+							'fdCSPId': res.result
+						}).then(reso => {
+							if (reso.success) {
+							me.modalName = null; 
+							me.form.FCostObjName = reso.data['FName'];
+							me.form.FCostObjNumber = reso.data['FNumber'];
+							}
+						})
+					}
+				}); */
+			},
 			chooseClick(val) {
 				console.log(val);
 				var that = this;
 				var choose = val;
 				let number = 0;
-				if(val.length == 0){
+				if (val.length == 0) {
 					that.resultA = [];
 				}
 				for (let j in choose) {
