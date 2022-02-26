@@ -20,7 +20,7 @@
 						@change="bindChange"></ruiDatePicker>
 				</view>
 				<view class="action">
-					包数:
+					数量:
 					<text>{{ form.bNum }}</text>
 				</view>
 			</view>
@@ -117,29 +117,27 @@
 			</view>
 		</view>
 		<scroll-view scroll-y class="page" :style="{ height: pageHeight + 'px' }">
-			<!-- <view v-for="(item, index) in cuIList" :key="index">
+			<view v-for="(item, index) in cuIList" :key="index">
 				<view class="cu-list menu-avatar">
-					<view
-						class="cu-item"
-						style="width: 100%;margin-top: 2px;height: 260upx;"
-						:class="modalName == 'move-box-' + index ? 'move-cur' : ''"
-						@touchstart="ListTouchStart"
-						@touchmove="ListTouchMove"
-						@touchend="ListTouchEnd"
-						:data-target="'move-box-' + index"
-					>
-						<view style="clear: both;width: 100%;" class="grid text-center col-2" @tap="showModal2(index, item)" data-target="Modal" data-number="item.number">
-							<view class="text-grey">序号:{{ (item.index = index + 1) }}</view>
-							<view class="text-grey">编码:{{ item.number }}</view>
-							<view class="text-grey">名称:{{ item.name }}</view>
-							<view class="text-grey">数量:{{ item.quantity }}</view>
-							<view class="text-grey">批号:{{ item.fbatchNo }}</view>
-							<view class="text-grey">单位:{{ item.unitName }}</view>
-							<view class="text-grey">规格:{{ item.model }}</view>
-							<view class="text-grey">仓位:{{ item.positions }}</view>
-							<view class="text-grey">{{ item.stockName }}</view>
-							<view class="text-grey">
-								<picker @change="PickerChange($event, item)" :value="pickerVal" :range-key="'FName'" :range="stockList">
+					<view class="cu-item" style="width: 100%;margin-top: 2px;height: 260upx;"
+						:class="modalName == 'move-box-' + index ? 'move-cur' : ''" @touchstart="ListTouchStart"
+						@touchmove="ListTouchMove" @touchend="ListTouchEnd" :data-target="'move-box-' + index">
+						<view style="clear: both;width: 100%;">
+							<view style="clear: both;width: 100%;" class="grid text-center col-2"
+								@tap="showModal2(index, item)" data-target="Modal" data-number="item.number">
+								<view class="text-grey">序号:{{ (item.index = index + 1) }}</view>
+								<view class="text-grey">编码:{{ item.number }}</view>
+								<view class="text-grey">名称:{{ item.name }}</view>
+								<view class="text-grey">数量:{{ item.quantity }}</view>
+								<view class="text-grey">批号:{{ item.fbatchNo }}</view>
+								<view class="text-grey">单位:{{ item.unitName }}</view>
+								<view class="text-grey">规格:{{ item.model }}</view>
+								<view class="text-grey">仓位:{{ item.positions }}</view>
+								<view class="text-grey">{{ item.stockName }}</view>
+							</view>
+							<view class="text-grey text-center">
+								<picker @change="PickerChange($event, item)" :value="pickerVal" :range-key="'FName'"
+									:range="stockList">
 									<view class="picker">
 										<button class="cu-btn sm round bg-green shadow">
 											<text class="cuIcon-homefill"></text>
@@ -149,21 +147,19 @@
 								</picker>
 							</view>
 						</view>
-						<view class="move"><view class="bg-red" @tap="del(index, item)">删除</view></view>
+						<view class="move">
+							<view class="bg-red" @tap="del(index, item)">删除</view>
+						</view>
 					</view>
 				</view>
-			</view> -->
-			<view class="selectTrees">
-				<!-- 一级分支 -->
+			</view>
+			<!-- <view class="selectTrees">
 				<view class="lv1list" v-for="(item, index) in cuIList" :key="index"
 					@longpress="deleteItem(index, item)">
 					<view class="tree-one" style="background: white;width: 100%;margin-top: 2px;height: 150upx;">
-						<!-- 单选框组件 -->
 						<checkbox-group v-if="showCheck"
 							style="position: absolute;height: 80rpx;line-height: 150upx; left:20rpx;z-index: 1;">
 							<checkbox :checked="item.checked" @click="_chooseAll(item, index)" />
-						</checkbox-group>
-						<!-- 名字和iconfont -->
 						<label
 							style="height:100%;display: flex;align-items: center;padding: 20rpx;position: relative;border-bottom: 1px solid #e4e4e4;"
 							@click="_showlv2(index)">
@@ -177,14 +173,12 @@
 								<view class="itemT">应发数量:{{ item.Fauxqty }}</view>
 								<view class="itemT">实际数量:{{ item.FCounty }}</view>
 							</view>
-							<!-- <view class="deleteBtn" v-if="showDelete" @click.stop="deleteItem(item, index)">删除</view> -->
 							<i class="cuIcon-unfold" v-if="item.show"
 								style="position: absolute;top: 40%;right: 2%;font-size: 48rpx;"></i>
 							<i class="cuIcon-fold" v-else
 								style="position: absolute;top: 40%;right: 2%;font-size: 48rpx;"></i>
 						</label>
 					</view>
-					<!-- 二级分支 -->
 					<view v-if="item.show && item.childrenList">
 						<view class="tree-two" v-for="(item2, index2) in item.childrenList" :key="index2"
 							style="display: flex;">
@@ -210,7 +204,7 @@
 						</view>
 					</view>
 				</view>
-			</view>
+			</view> -->
 			<view class="cu-bar tabbar shadow foot">
 				<view class="box text-center">
 					<button :disabled="isClick" class="cu-btn bg-green shadow-blur round lg"
@@ -320,6 +314,18 @@
 			// 移除监听事件
 			uni.$off('scancodedate');
 			this.isScanOf = true;
+		},
+		watch: {
+		　　cuIList: {
+		　　　　handler(newValue, oldValue) {
+					let number= 0
+					this.cuIList.forEach((item)=>{
+						number += Number(item.quantity)
+					})
+					this.form.bNum = number
+		　　　　},
+		　　　　deep: true
+		　　}
 		},
 		onLoad: function(option) {
 			let me = this;
@@ -711,58 +717,57 @@
 				let isBatchNo = false;
 				let batchMsg = '';
 				let cIndex = 0
-				for (let i in list) {
-					let children = list[i].childrenList
-					children.forEach((item, index) => {
-						if (item.checked) {
-							cIndex++
-							let obj = {};
-							obj.fcostobjid = me.form.FCostObjNumber;
-							obj.fauxqty = item.quantity;
-							obj.fentryId = cIndex;
-							obj.finBillNo = item.FBillNo;
-							obj.fbatchNo = item.FBatchNo;
-							/* if (list[i].FBatchManager) {
-								if (list[i].fbatchNo != '' && list[i].fbatchNo != null) {
-									obj.fbatchNo = list[i].fbatchNo;
-									isBatchNo = true;
-								} else {
-									isBatchNo = false;
-									batchMsg = '批号已启用，不允许为空';
-									break;
-								}
+				/* for (let i in list) {
+					let children = list[i].childrenList */
+				list.forEach((item, index) => {
+					/* if (item.checked) {
+						cIndex++ */
+						let obj = {};
+						obj.fcostobjid = me.form.FCostObjNumber;
+						obj.fauxqty = item.quantity;
+						obj.fentryId = index;
+						obj.finBillNo = item.FBillNo;
+						obj.fbatchNo = item.fbatchNo;
+						/* if (list[i].FBatchManager) {
+							if (list[i].fbatchNo != '' && list[i].fbatchNo != null) {
+								obj.fbatchNo = list[i].fbatchNo;
+								isBatchNo = true;
 							} else {
-								if (list[i].fbatchNo == '' || list[i].fbatchNo == null) {
-									obj.fbatchNo = list[i].fbatchNo;
-									isBatchNo = true;
-								} else {
-									batchMsg = '批号未启用，不允许输入';
-									isBatchNo = false;
-									break;
-								}
-							} */
-							obj.fitemId = item.FNumber;
-							obj.fdCSPId = item.FStockPlacename;
-							obj.fauxprice = list[i].Fauxprice != null && typeof list[i].Fauxprice != 'undefined' ?
-								list[i].Fauxprice : 0;
-							obj.famount = list[i].Famount != null && typeof list[i].Famount != 'undefined' ? list[
-								i].Famount : 0;
-							obj.fsCStockId = item.FStockNumber;
-							/* if (list[i].stockId == null || typeof list[i].stockId == 'undefined') {
-								result.push(list[i].index);
-							} */
-							obj.fsourceBillNo = list[i].fsourceBillNo == null || list[i].fsourceBillNo ==
-								'undefined' ? '' : list[i].fsourceBillNo;
-							obj.fsourceEntryId = list[i].fsourceEntryID == null || list[i].fsourceEntryID ==
-								'undefined' ? '' : list[i].fsourceEntryID;
-							obj.fsourceTranType = list[i].fsourceTranType == null || list[i].fsourceTranType ==
-								'undefined' ? '' : list[i].fsourceTranType;
-							obj.funitId = item.FUnitID;
-
-							array.push(obj);
-						}
-					})
-				}
+								isBatchNo = false;
+								batchMsg = '批号已启用，不允许为空';
+								break;
+							}
+						} else {
+							if (list[i].fbatchNo == '' || list[i].fbatchNo == null) {
+								obj.fbatchNo = list[i].fbatchNo;
+								isBatchNo = true;
+							} else {
+								batchMsg = '批号未启用，不允许输入';
+								isBatchNo = false;
+								break;
+							}
+						} */
+						obj.fitemId = item.FNumber;
+						obj.fdCSPId = item.FStockPlacename;
+						obj.fauxprice = item.Fauxprice != null && typeof item.Fauxprice != 'undefined' ?
+							item.Fauxprice : 0;
+						obj.famount = item.Famount != null && typeof item.Famount != 'undefined' ? item.Famount :
+						0;
+						obj.fsCStockId = item.FStockNumber;
+						/* if (list[i].stockId == null || typeof list[i].stockId == 'undefined') {
+							result.push(list[i].index);
+						} */
+						obj.fsourceBillNo = item.fsourceBillNo == null || item.fsourceBillNo ==
+							'undefined' ? '' : item.fsourceBillNo;
+						obj.fsourceEntryId = item.fsourceEntryID == null || item.fsourceEntryID ==
+							'undefined' ? '' : item.fsourceEntryID;
+						obj.fsourceTranType = item.fsourceTranType == null || item.fsourceTranType ==
+							'undefined' ? '' : item.fsourceTranType;
+						obj.funitId = item.FUnitID;
+						array.push(obj);
+					/* } */
+				})
+				/* } */
 				portData.items = array;
 				portData.ftranType = 24;
 				portData.finBillNo = this.form.finBillNo;
@@ -1150,22 +1155,105 @@
 					}
 				});
 			},
-			getScanInfo(res) {
+			getScanInfo(reso) {
 				var that = this;
 				let number = 0;
-				let resData = res.split(';');
-				basic
+				let resData = reso.split(';');
+				// 判断无源单
+				if (!that.isOrder) {
+					// 判断类型是否一致
+					for (let i in that.cuIList) {
+						if (that.cuIList[i]['onFBarCode'].indexOf(reso) == -1) {
+							if (resData[0] == that.cuIList[i]['number']) {
+								if (resData[1] == that.cuIList[i]['fbatchNo']) {
+									that.cuIList[i]['quantity'] = parseFloat(that.cuIList[i]['quantity']) + 1;
+									that.cuIList[i]['bNum'] = parseFloat(that.cuIList[i]['bNum']) + 1;
+									that.cuIList[i]['onFBarCode'].push(reso)
+									that.form.bNum += 1;
+									break;
+								} else {
+									that.form.bNum += 1;
+									that.cuIList.push({
+										number: that.cuIList[i]['number'],
+										name: that.cuIList[i]['name'],
+										model: that.cuIList[i]['model'],
+										quantity: 1,
+										bNum: 1,
+										onFBarCode: [reso],
+										fbatchNo: resData[1],
+										/* Fauxprice: that.cuIList[i]['Fauxprice'],
+										Famount: that.cuIList[i]['Famount'],
+										FBatchManager: that.cuIList[i]['FBatchManager'],
+										fsourceBillNo: that.cuIList[i]['fsourceBillNo'],
+										fsourceEntryID: that.cuIList[i]['fsourceEntryID'],
+										Fauxqty: that.cuIList[i]['Fauxqty'],
+										fsourceTranType: that.cuIList[i]['fsourceTranType'], */
+										unitID: that.cuIList[i]['unitID'],
+										unitName: that.cuIList[i]['unitName']
+									});
+									break;
+								}
+							}
+						} else {
+							uni.showToast({
+								icon: 'none',
+								title: '该条码已扫描！'
+							});
+							break;
+						}
+					}
+					if (that.cuIList.length == 0) {
+						that.form.bNum = 1;
+						basic
+							.getItemList({
+								number: resData[0],
+							})
+							.then(res => {
+								if (res.success) {
+									let data = res.data.list;
+									that.cuIList.push({
+										number: data[0].FNumber,
+										name: data[0].FName,
+										model: data[0].FModel,
+										/* Fauxprice: data[0].Fauxprice,
+										Famount: data[0].Famount,
+										FBatchManager: data[0].FBatchManager,
+										fsourceBillNo: data[0].FBillNo,
+										fsourceEntryID: data[0].FEntryID,
+										fsourceTranType: data[0].FTranType, */
+										quantity: 1,
+										bNum: 1,
+										fbatchNo: resData[1],
+										onFBarCode: [reso],
+										unitID: data[0].FUnitNumber,
+										unitName: data[0].FUnitName
+									});
+								}
+							})
+							.catch(err => {
+								uni.showToast({
+									icon: 'none',
+									title: err.msg
+								});
+							});
+					}
+
+				} else {
+					if (number == that.cuIList.length) {
+						uni.showToast({
+							icon: 'none',
+							title: '该物料不在所选单据中！'
+						});
+					}
+				}
+				/* basic
 					.inventoryByBarcode({
 						uuid: resData[0] + "," + resData[1]
 					})
 					.then(reso => {
 						if (reso.success) {
 							that.chooseClick([reso.data[0]]);
-							/* that.chooseList = [];
-							for (let i in reso.data) {
-								that.chooseList.push(reso.data[i]);
-							}
-							that.show = true; */
+						
 						}
 					})
 					.catch(err => {
@@ -1173,7 +1261,7 @@
 							icon: 'none',
 							title: err.msg
 						});
-					});
+					}); */
 			},
 			// ListTouch触摸开始
 			ListTouchStart(e) {

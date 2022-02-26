@@ -16,10 +16,10 @@
 					日期:
 					<ruiDatePicker fields="day" class="ruidata" start="2010-00-00" end="2030-12-30" :value="form.fdate" @change="bindChange"></ruiDatePicker>
 				</view>
-				<view class="action">
+				<!-- <view class="action">
 					包数:
 					<text>{{ form.bNum }}</text>
-				</view>
+				</view> -->
 			</view>
 			<view class="cu-bar bg-white solid-bottom" style="height: 60upx;">
 				<view class="action">
@@ -154,6 +154,18 @@ export default {
 			endDate: null,
 			billNo: null
 		};
+	},
+	watch: {
+	　　cuIList: {
+	　　　　handler(newValue, oldValue) {
+				let number= 0
+				this.cuIList.forEach((item)=>{
+					number += Number(item.quantity)
+				})
+				this.form.bNum = number
+	　　　　},
+	　　　　deep: true
+	　　}
 	},
 	onLoad: function(option) {
 		let me = this;

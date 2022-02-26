@@ -28,7 +28,7 @@
 				></ruiDatePicker>
 			</view>
 			<view class="action">
-				包数:<text>{{form.bNum}}</text>
+				数量:<text>{{form.bNum}}</text>
 			</view>
 		</view>
 		<view class="cu-bar bg-white solid-bottom" style="height: 60upx;">

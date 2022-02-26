@@ -5,8 +5,8 @@
 			<block slot="backText">返回</block>
 			<block slot="content">外购入库</block>
 		</cu-custom>
-		<!-- <uni-fab v-if="!isOrder" :pattern="pattern" :horizontal="horizontal" :vertical="vertical" :popMenu="popMenu"
-			distable :direction="direction" @fabClick="fabClick"></uni-fab> -->
+		<uni-fab v-if="!isOrder" :pattern="pattern" :horizontal="horizontal" :vertical="vertical" :popMenu="popMenu"
+			distable :direction="direction" @fabClick="fabClick"></uni-fab>
 		<view class="box getheight">
 			<view class="cu-bar bg-white solid-bottom" style="height: 60upx;">
 				<view class="action">
@@ -19,7 +19,7 @@
 						@change="bindChange"></ruiDatePicker>
 				</view>
 				<view class="action">
-					包数:
+					数量:
 					<text>{{ form.bNum }}</text>
 				</view>
 			</view>
@@ -235,6 +235,18 @@
 				startDate: null,
 				endDate: null
 			};
+		},
+		watch: {
+		　　cuIList: {
+		　　　　handler(newValue, oldValue) {
+					let number= 0
+					this.cuIList.forEach((item)=>{
+						number += Number(item.quantity)
+					})
+					this.form.bNum = number
+		　　　　},
+		　　　　deep: true
+		　　}
 		},
 		onUnload() {
 			// 移除监听事件

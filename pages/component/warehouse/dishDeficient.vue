@@ -19,7 +19,7 @@
 						@change="bindChange"></ruiDatePicker>
 				</view>
 				<view class="action">
-					包数:
+					数量:
 					<text>{{ form.bNum }}</text>
 				</view>
 			</view>
@@ -194,6 +194,18 @@
 				},
 				cuIList: []
 			};
+		},
+		watch: {
+		　　cuIList: {
+		　　　　handler(newValue, oldValue) {
+					let number= 0
+					this.cuIList.forEach((item)=>{
+						number += Number(item.quantity)
+					})
+					this.form.bNum = number
+		　　　　},
+		　　　　deep: true
+		　　}
 		},
 		onUnload() {
 			// 移除监听事件
