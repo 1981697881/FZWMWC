@@ -70,6 +70,9 @@
 		{
 			"path": "pages/component/production/productPassive",
 			"style": {}
+		},{
+			"path": "pages/component/production/returnMaterialPassive",
+			"style": {}
 		},
 		{
 			"path": "pages/component/sales/salesActive",

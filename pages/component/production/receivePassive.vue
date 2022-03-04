@@ -316,16 +316,16 @@
 			this.isScanOf = true;
 		},
 		watch: {
-		　　cuIList: {
-		　　　　handler(newValue, oldValue) {
-					let number= 0
-					this.cuIList.forEach((item)=>{
+			cuIList: {
+				handler(newValue, oldValue) {
+					let number = 0
+					this.cuIList.forEach((item) => {
 						number += Number(item.quantity)
 					})
 					this.form.bNum = number
-		　　　　},
-		　　　　deep: true
-		　　}
+				},
+				deep: true
+			}
 		},
 		onLoad: function(option) {
 			let me = this;
@@ -722,49 +722,49 @@
 				list.forEach((item, index) => {
 					/* if (item.checked) {
 						cIndex++ */
-						let obj = {};
-						obj.fcostobjid = me.form.FCostObjNumber;
-						obj.fauxqty = item.quantity;
-						obj.fentryId = index;
-						obj.finBillNo = item.FBillNo;
-						obj.fbatchNo = item.fbatchNo;
-						/* if (list[i].FBatchManager) {
-							if (list[i].fbatchNo != '' && list[i].fbatchNo != null) {
-								obj.fbatchNo = list[i].fbatchNo;
-								isBatchNo = true;
-							} else {
-								isBatchNo = false;
-								batchMsg = '批号已启用，不允许为空';
-								break;
-							}
+					let obj = {};
+					obj.fcostobjid = me.form.FCostObjNumber;
+					obj.fauxqty = item.quantity;
+					obj.fentryId = index;
+					obj.finBillNo = item.FBillNo;
+					obj.fbatchNo = item.fbatchNo;
+					/* if (list[i].FBatchManager) {
+						if (list[i].fbatchNo != '' && list[i].fbatchNo != null) {
+							obj.fbatchNo = list[i].fbatchNo;
+							isBatchNo = true;
 						} else {
-							if (list[i].fbatchNo == '' || list[i].fbatchNo == null) {
-								obj.fbatchNo = list[i].fbatchNo;
-								isBatchNo = true;
-							} else {
-								batchMsg = '批号未启用，不允许输入';
-								isBatchNo = false;
-								break;
-							}
-						} */
-						obj.fitemId = item.FNumber;
-						obj.fdCSPId = item.FStockPlacename;
-						obj.fauxprice = item.Fauxprice != null && typeof item.Fauxprice != 'undefined' ?
-							item.Fauxprice : 0;
-						obj.famount = item.Famount != null && typeof item.Famount != 'undefined' ? item.Famount :
+							isBatchNo = false;
+							batchMsg = '批号已启用，不允许为空';
+							break;
+						}
+					} else {
+						if (list[i].fbatchNo == '' || list[i].fbatchNo == null) {
+							obj.fbatchNo = list[i].fbatchNo;
+							isBatchNo = true;
+						} else {
+							batchMsg = '批号未启用，不允许输入';
+							isBatchNo = false;
+							break;
+						}
+					} */
+					obj.fitemId = item.FNumber;
+					obj.fdCSPId = item.positions;
+					obj.fauxprice = item.Fauxprice != null && typeof item.Fauxprice != 'undefined' ?
+						item.Fauxprice : 0;
+					obj.famount = item.Famount != null && typeof item.Famount != 'undefined' ? item.Famount :
 						0;
-						obj.fsCStockId = item.FStockNumber;
-						/* if (list[i].stockId == null || typeof list[i].stockId == 'undefined') {
-							result.push(list[i].index);
-						} */
-						obj.fsourceBillNo = item.fsourceBillNo == null || item.fsourceBillNo ==
-							'undefined' ? '' : item.fsourceBillNo;
-						obj.fsourceEntryId = item.fsourceEntryID == null || item.fsourceEntryID ==
-							'undefined' ? '' : item.fsourceEntryID;
-						obj.fsourceTranType = item.fsourceTranType == null || item.fsourceTranType ==
-							'undefined' ? '' : item.fsourceTranType;
-						obj.funitId = item.FUnitID;
-						array.push(obj);
+					obj.fsCStockId = item.stockId;
+					/* if (list[i].stockId == null || typeof list[i].stockId == 'undefined') {
+						result.push(list[i].index);
+					} */
+					obj.fsourceBillNo = item.fsourceBillNo == null || item.fsourceBillNo ==
+						'undefined' ? '' : item.fsourceBillNo;
+					obj.fsourceEntryId = item.fsourceEntryID == null || item.fsourceEntryID ==
+						'undefined' ? '' : item.fsourceEntryID;
+					obj.fsourceTranType = item.fsourceTranType == null || item.fsourceTranType ==
+						'undefined' ? '' : item.fsourceTranType;
+					obj.funitId = item.FUnitID;
+					array.push(obj);
 					/* } */
 				})
 				/* } */
@@ -1163,81 +1163,29 @@
 				if (!that.isOrder) {
 					// 判断类型是否一致
 					for (let i in that.cuIList) {
-						if (that.cuIList[i]['onFBarCode'].indexOf(reso) == -1) {
-							if (resData[0] == that.cuIList[i]['number']) {
-								if (resData[1] == that.cuIList[i]['fbatchNo']) {
-									that.cuIList[i]['quantity'] = parseFloat(that.cuIList[i]['quantity']) + 1;
-									that.cuIList[i]['bNum'] = parseFloat(that.cuIList[i]['bNum']) + 1;
-									that.cuIList[i]['onFBarCode'].push(reso)
-									that.form.bNum += 1;
-									break;
-								} else {
-									that.form.bNum += 1;
-									that.cuIList.push({
-										number: that.cuIList[i]['number'],
-										name: that.cuIList[i]['name'],
-										model: that.cuIList[i]['model'],
-										quantity: 1,
-										bNum: 1,
-										onFBarCode: [reso],
-										fbatchNo: resData[1],
-										/* Fauxprice: that.cuIList[i]['Fauxprice'],
-										Famount: that.cuIList[i]['Famount'],
-										FBatchManager: that.cuIList[i]['FBatchManager'],
-										fsourceBillNo: that.cuIList[i]['fsourceBillNo'],
-										fsourceEntryID: that.cuIList[i]['fsourceEntryID'],
-										Fauxqty: that.cuIList[i]['Fauxqty'],
-										fsourceTranType: that.cuIList[i]['fsourceTranType'], */
-										unitID: that.cuIList[i]['unitID'],
-										unitName: that.cuIList[i]['unitName']
-									});
-									break;
-								}
-							}
-						} else {
-							uni.showToast({
-								icon: 'none',
-								title: '该条码已扫描！'
-							});
-							break;
-						}
-					}
-					if (that.cuIList.length == 0) {
-						that.form.bNum = 1;
-						basic
-							.getItemList({
-								number: resData[0],
-							})
-							.then(res => {
-								if (res.success) {
-									let data = res.data.list;
-									that.cuIList.push({
-										number: data[0].FNumber,
-										name: data[0].FName,
-										model: data[0].FModel,
-										/* Fauxprice: data[0].Fauxprice,
-										Famount: data[0].Famount,
-										FBatchManager: data[0].FBatchManager,
-										fsourceBillNo: data[0].FBillNo,
-										fsourceEntryID: data[0].FEntryID,
-										fsourceTranType: data[0].FTranType, */
-										quantity: 1,
-										bNum: 1,
-										fbatchNo: resData[1],
-										onFBarCode: [reso],
-										unitID: data[0].FUnitNumber,
-										unitName: data[0].FUnitName
-									});
-								}
-							})
-							.catch(err => {
+						if (resData[0] == that.cuIList[i]['number'] && resData[1] == that.cuIList[i]['fbatchNo']) {
+							if (that.cuIList[i]['onFBarCode'].indexOf(reso) == -1) {
+								that.cuIList[i]['quantity'] = parseFloat(that.cuIList[i]['quantity']) + 1;
+								that.cuIList[i]['bNum'] = parseFloat(that.cuIList[i]['bNum']) + 1;
+								that.cuIList[i]['onFBarCode'].push(reso)
+								that.form.bNum += 1;
+								number++;
+								break;
+							} else {
 								uni.showToast({
 									icon: 'none',
-									title: err.msg
+									title: '该条码已扫描！'
 								});
-							});
+								number++;
+								break;
+							}
+						}
 					}
-
+					console.log(number)
+					if (number == 0) {
+						that.form.bNum = 1;
+						that.getItemList(resData, reso)
+					}
 				} else {
 					if (number == that.cuIList.length) {
 						uni.showToast({
@@ -1262,6 +1210,35 @@
 							title: err.msg
 						});
 					}); */
+			},
+			getItemList(resData, reso) {
+				let that = this;
+				basic
+					.getItemList({
+						number: resData[0],
+					})
+					.then(res => {
+						if (res.success) {
+							let data = res.data.list;
+							that.cuIList.push({
+								number: data[0].FNumber,
+								name: data[0].FName,
+								model: data[0].FModel,
+								quantity: 1,
+								bNum: 1,
+								fbatchNo: resData[1],
+								onFBarCode: [reso],
+								unitID: data[0].FUnitNumber,
+								unitName: data[0].FUnitName
+							});
+						}
+					})
+					.catch(err => {
+						uni.showToast({
+							icon: 'none',
+							title: err.msg
+						});
+					});
 			},
 			// ListTouch触摸开始
 			ListTouchStart(e) {

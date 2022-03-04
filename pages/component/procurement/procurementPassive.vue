@@ -31,7 +31,7 @@
 				</view> -->
 				<view class="action">
 					<view style="width: 90px;">仓库:</view>
-					<ld-select :list="stockList" list-key="FName" value-key="FNumber"  placeholder="请选择" clearable
+					<ld-select :list="stockList" list-key="FName" value-key="FNumber" placeholder="请选择" clearable
 						v-model="form.fdCStockId" @change="stockChange"></ld-select>
 				</view>
 				<view class="action">
@@ -43,7 +43,7 @@
 				
 				:value="form.FSupplyID"
 				@change="supplierChange"></ld-select> -->
-				<text style="width: 170rpx;">{{ form.FSupplyName }}</text>
+					<text style="width: 170rpx;">{{ form.FSupplyName }}</text>
 				</view>
 				<button class="cu-btn round lines-blue line-blue shadow" @tap="showModal" :disabled="isDis"
 					data-target="Modal">选择</button>
@@ -82,8 +82,8 @@
 							<view class="flex-sub">
 								<view class="cu-form-group">
 									<view class="title">批号:</view>
-									<input name="input" style="border-bottom: 1px solid;"
-										v-model="popupForm.fbatchNo" disabled />
+									<input name="input" style="border-bottom: 1px solid;" v-model="popupForm.fbatchNo"
+										disabled />
 								</view>
 							</view>
 							<view class="flex-sub">
@@ -237,16 +237,16 @@
 			};
 		},
 		watch: {
-		　　cuIList: {
-		　　　　handler(newValue, oldValue) {
-					let number= 0
-					this.cuIList.forEach((item)=>{
+			cuIList: {
+				handler(newValue, oldValue) {
+					let number = 0
+					this.cuIList.forEach((item) => {
 						number += Number(item.quantity)
 					})
 					this.form.bNum = number
-		　　　　},
-		　　　　deep: true
-		　　}
+				},
+				deep: true
+			}
 		},
 		onUnload() {
 			// 移除监听事件
@@ -256,9 +256,9 @@
 			const me = this;
 			uni.$on('scancodedate', function(data) {
 				// _this 这里面的方法用这个 _this.code(data.code)
-				if(me.modalName2 == null){
+				if (me.modalName2 == null) {
 					me.getScanInfo(data.code);
-				}else{
+				} else {
 					me.scanPosition(data.code);
 				}
 			});
@@ -381,7 +381,7 @@
 				};
 				this.borrowItem = item;
 			},
-			clickScanPosition(){
+			clickScanPosition() {
 				let me = this
 				uni.scanCode({
 					success: function(res) {
@@ -408,7 +408,7 @@
 						});
 					}
 				})
-				
+
 			},
 			saveCom() {
 				var me = this;
@@ -632,7 +632,7 @@
 											});
 										}, 1000);
 									}
-								}else{
+								} else {
 									me.isClick = false;
 								}
 							})
@@ -746,11 +746,10 @@
 						number: resData[0]
 					})
 					.then(reso => {
-						console.log(reso)
 						if (reso.success) {
 							if (that.isOrder) {
 								for (let i in that.cuIList) {
-									if (resData[0] == that.cuIList[i]['number']) {
+									if (resData[0] == that.cuIList[i]['FNumber']) {
 										if (that.cuIList[i]['onFBarCode'].indexOf(res) == -1) {
 											that.cuIList[i]['quantity'] = parseFloat(that.cuIList[i][
 												'quantity'
@@ -775,31 +774,26 @@
 									});
 								}
 							} else {
-								if (that.cuIList.length > 0) {
-									for (let i in that.cuIList) {
-										if (resData[0] == that.cuIList[i]['number']) {
-											if (that.cuIList[i]['onFBarCode'].indexOf(res) == -1) {
-												that.cuIList[i]['quantity'] = parseFloat(that.cuIList[i][
-													'quantity'
-												]) + 1
-												that.cuIList[i]['onFBarCode'].push(res)
-												break;
-											} else {
-												uni.showToast({
-													icon: 'none',
-													title: '该条码已扫描！'
-												});
-												break;
-											}
+								for (let i in that.cuIList) {
+									if (resData[0] == that.cuIList[i]['FNumber'] && resData[1] == that.cuIList[i]['fbatchNo']) {
+										if (that.cuIList[i]['onFBarCode'].indexOf(res) == -1) {
+											that.cuIList[i]['quantity'] = parseFloat(that.cuIList[i][
+												'quantity'
+											]) + 1
+											that.cuIList[i]['onFBarCode'].push(res)
+											number++;
+											break;
 										} else {
-											reso.data[0]['quantity'] = 1
-											reso.data[0]['fbatchNo'] = resData[1]
-											reso.data[0]['onFBarCode'] = [res]
-											that.cuIList.push(reso.data[0])
-											that.form.bNum = that.cuIList.length
+											uni.showToast({
+												icon: 'none',
+												title: '该条码已扫描！'
+											});
+											number++;
+											break;
 										}
 									}
-								} else {
+								}
+								if (number == 0) {
 									reso.data[0]['quantity'] = 1
 									reso.data[0]['fbatchNo'] = resData[1]
 									reso.data[0]['onFBarCode'] = [res]
