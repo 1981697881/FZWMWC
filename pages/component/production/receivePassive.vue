@@ -102,7 +102,7 @@
 									<input name="input" style="border-bottom: 1px solid;"
 										v-model="popupForm.positions" />
 									<button class="cu-btn round lines-red line-red shadow"
-										@tap="$manyCk(scanPosition)">扫码</button>
+										@tap="$manyCk(clickScanPosition)">扫码</button>
 								</view>
 							</view>
 						</view>
@@ -123,8 +123,9 @@
 						:class="modalName == 'move-box-' + index ? 'move-cur' : ''" @touchstart="ListTouchStart"
 						@touchmove="ListTouchMove" @touchend="ListTouchEnd" :data-target="'move-box-' + index">
 						<view style="clear: both;width: 100%;">
-							<view style="clear: both;width: 100%;" class="grid text-center col-2"
-								@tap="showModal2(index, item)" data-target="Modal" data-number="item.number">
+							<view style="clear: both;width: 100%;" class="grid text-center col-2" data-target="Modal"
+								data-number="item.number">
+								<!-- @tap="showModal2(index, item)" -->
 								<view class="text-grey">序号:{{ (item.index = index + 1) }}</view>
 								<view class="text-grey">编码:{{ item.number }}</view>
 								<view class="text-grey">名称:{{ item.name }}</view>
@@ -747,7 +748,7 @@
 							break;
 						}
 					} */
-					obj.fitemId = item.FNumber;
+					obj.fitemId = item.number;
 					obj.fdCSPId = item.positions;
 					obj.fauxprice = item.Fauxprice != null && typeof item.Fauxprice != 'undefined' ?
 						item.Fauxprice : 0;
@@ -837,7 +838,8 @@
 				var me = this;
 				if (me.popupForm.positions != '' && me.popupForm.positions != null) {
 					basic.selectFdCStockIdByFdCSPId({
-						'fdCSPId': me.popupForm.positions
+						'FNumber': me.popupForm.positions,
+						'FName': me.popupForm.positions
 					}).then(reso => {
 						if (reso.data != null && reso.data != '') {
 							if (reso.data['FIsStockMgr']) {
@@ -1005,27 +1007,34 @@
 				this.$set(item, 'positions', '');
 				this.$set(item, 'FIsStockMgr', this.stockList[e.detail.value].FIsStockMgr);
 			},
-			scanPosition() {
-				let me = this;
+			clickScanPosition() {
+				let me = this
 				uni.scanCode({
 					success: function(res) {
-						basic.selectFdCStockIdByFdCSPId({
-							'fdCSPId': res.result
-						}).then(reso => {
-							if (reso.data != null && reso.data != '') {
-								me.popupForm.positions = res.result;
-								me.popupForm.stockName = reso.data['stockName'];
-								me.popupForm.stockId = reso.data['stockNumber'];
-								me.popupForm.FIsStockMgr = reso.data['FIsStockMgr'];
-							} else {
-								uni.showToast({
-									icon: 'none',
-									title: '该库位不存在仓库中！',
-								});
-							}
-						})
+						me.scanPosition(res.result)
+					},
+				})
+			},
+			scanPosition(res) {
+				let me = this
+				basic.selectFdCStockIdByFdCSPId({
+					'FNumber': res,
+					'FName': res
+				}).then(reso => {
+					console.log(reso)
+					if (reso.data != null && reso.data != '') {
+						me.popupForm.positions = res;
+						me.popupForm.stockName = reso.data['FName'];
+						me.popupForm.stockId = reso.data['FNumber'];
+						me.popupForm.FIsStockMgr = '';
+					} else {
+						uni.showToast({
+							icon: 'none',
+							title: '该库位不存在仓库中！',
+						});
 					}
-				});
+				})
+
 			},
 			scanCostObject(res) {
 				let me = this;
@@ -1042,6 +1051,8 @@
 							me.form.FCostObjNumber = reso.data['FNumber'];
 							}
 						})
+								}
+								console.log(that.cuIList[i]['quantit+
 					}
 				}); */
 			},
@@ -1057,16 +1068,25 @@
 					if (that.isOrder) {
 						for (let i in that.cuIList) {
 							if (choose[j]['FItemID'] == that.cuIList[i]['FItemID']) {
-								if (choose[j]['FStockNumber'] == that.cuIList[i]['stockId'] && choose[j]['FBatchNo'] ==
-									that.cuIList[i]['fbatchNo']) {
+								if (choose[j]['FStockNumber'] == that.cuIList[i]['stockId'] &&
+									choose[j]['FBatchNo'] == that.cuIList[i]['fbatchNo'] &&
+									choose[j]['FStockPlacename'] == that.cuIList[i]['positions']) {
 									if (choose[j]['quantity'] == null) {
 										choose[j]['quantity'] = 1;
 									}
 									if (choose[j]['isEnable'] == 2) {
 										choose[j]['uuid'] = null;
 									}
-									that.cuIList[i]['quantity'] = parseFloat(that.cuIList[i]['quantity']) + parseFloat(
-										choose[j]['quantity']);
+									if (that.cuIList[i]['quantity'] == choose[j]['FQty']) {
+										that.cuIList[i]['quantity'] = parseFloat(that.cuIList[i]['quantity']) + parseFloat(
+											choose[
+												j]['quantity']);
+									} else {
+										uni.showToast({
+											icon: 'none',
+											title: '领料数量不能大于库存数量！'
+										});
+									}
 									number++;
 									break;
 								}
@@ -1094,6 +1114,7 @@
 							choose[j].name = choose[j].FName;
 							choose[j].unitName = choose[j].FUnitName;
 							choose[j].model = choose[j].FModel;
+							choose[j].positions = choose[j].FStockPlacename;
 							choose[j].unitID = choose[j].FUnitID;
 							that.cuIList.push(choose[j]);
 							that.form.bNum = that.cuIList.length;
@@ -1109,7 +1130,8 @@
 							if (
 								choose[j]['FItemID'] == that.cuIList[i]['FItemID'] &&
 								choose[j]['FStockNumber'] == that.cuIList[i]['stockId'] &&
-								choose[j]['FBatchNo'] == that.cuIList[i]['fbatchNo']
+								choose[j]['FBatchNo'] == that.cuIList[i]['fbatchNo'] &&
+								choose[j]['FStockPlacename'] == that.cuIList[i]['positions']
 							) {
 								if (choose[j]['quantity'] == null) {
 									choose[j]['quantity'] = 1;
@@ -1117,8 +1139,16 @@
 								if (choose[j]['isEnable'] == 2) {
 									choose[j]['uuid'] = null;
 								}
-								that.cuIList[i]['quantity'] = parseFloat(that.cuIList[i]['quantity']) + parseFloat(choose[
-									j]['quantity']);
+								if (Number(that.cuIList[i]['quantity'])< Number( choose[j]['FQty'])) {
+									that.cuIList[i]['quantity'] = parseFloat(that.cuIList[i]['quantity']) + parseFloat(
+										choose[
+											j]['quantity']);
+								} else {
+									uni.showToast({
+										icon: 'none',
+										title: '领料数量不能大于库存数量！'
+									});
+								}
 								number++;
 								break;
 							}
@@ -1139,11 +1169,13 @@
 							choose[j].unitName = choose[j].FUnitName;
 							choose[j].model = choose[j].FModel;
 							choose[j].unitID = choose[j].FUnitID;
+							choose[j].positions = choose[j].FStockPlacename;
 							that.cuIList.push(choose[j]);
 							that.form.bNum = that.cuIList.length;
 						}
 					}
 				}
+				that.show = false
 			},
 
 			fabClick() {
@@ -1159,7 +1191,7 @@
 				var that = this;
 				let number = 0;
 				let resData = reso.split(';');
-				// 判断无源单
+				/* // 判断无源单
 				if (!that.isOrder) {
 					// 判断类型是否一致
 					for (let i in that.cuIList) {
@@ -1193,15 +1225,21 @@
 							title: '该物料不在所选单据中！'
 						});
 					}
-				}
-				/* basic
+				} */
+				basic
 					.inventoryByBarcode({
 						uuid: resData[0] + "," + resData[1]
 					})
 					.then(reso => {
 						if (reso.success) {
-							that.chooseClick([reso.data[0]]);
-						
+							let data = reso.data;
+							that.chooseList = []
+							console.log(data)
+							for (let i in reso.data) {
+								that.chooseList.push(reso.data[i])
+							}
+							that.show = true
+
 						}
 					})
 					.catch(err => {
@@ -1209,7 +1247,7 @@
 							icon: 'none',
 							title: err.msg
 						});
-					}); */
+					});
 			},
 			getItemList(resData, reso) {
 				let that = this;

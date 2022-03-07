@@ -11,7 +11,7 @@
 						<view style="clear: both;width: 90%;padding:0px;display: inline-block;">
 							<view style="width:50%; float: left;padding:0px;">名称:{{v.FName}}</view>
 							<view style="width:50%;float: left;padding:0px;">编码:{{v.FNumber}}</view>
-							<view style="width:50%;float: left;padding:0px;">规格型号:{{v.FModel}}</view>
+							<view style="width:50%;float: left;padding:0px;">仓位:{{v.FStockPlacename}}</view>
 							<view style="width:50%;float: left;padding:0px;">数量:{{v.FQty}}</view>
 							<view style="width:50%;float: left;padding:0px;">仓库:{{v.FStockName}}</view>
 							<view style="width:50%;float: left;padding:0px;">批号:{{v.FBatchNo}}</view>

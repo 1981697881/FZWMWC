@@ -5,8 +5,8 @@
 			<block slot="content">库存查询</block>
 		</cu-custom>
 		<loading :loadModal="loadModal"></loading>
-		<!-- <uni-fab :pattern="pattern" :horizontal="horizontal" :vertical="vertical" :popMenu="popMenu" distable :direction="direction" @fabClick="fabClick"></uni-fab>
-		 --><view class="box getheight">
+		 <uni-fab :pattern="pattern" :horizontal="horizontal" :vertical="vertical" :popMenu="popMenu" distable :direction="direction" @fabClick="fabClick"></uni-fab>
+		 <view class="box getheight">
 			<view class="cu-bar search bg-white" style="height: 30px;">
 				<view class="search-form round">
 					<text class="cuIcon-search"></text>
