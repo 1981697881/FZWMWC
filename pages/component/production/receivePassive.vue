@@ -843,18 +843,18 @@
 					}).then(reso => {
 						if (reso.data != null && reso.data != '') {
 							if (reso.data['FIsStockMgr']) {
-								me.borrowItem.stockName = reso.data['stockName'];
-								me.borrowItem.stockId = reso.data['stockNumber'];
+								me.borrowItem.stockName = reso.data['FName'];
+								me.borrowItem.stockId = reso.data['FNumber'];
 								me.borrowItem.FIsStockMgr = reso.data['FIsStockMgr'];
 								me.borrowItem.positions = me.popupForm.positions
 								me.borrowItem.quantity = me.popupForm.quantity
 								me.borrowItem.fbatchNo = me.popupForm.fbatchNo
 								me.modalName2 = null
 							} else {
-								me.borrowItem.stockName = reso.data['stockName'];
-								me.borrowItem.stockId = reso.data['stockNumber'];
+								me.borrowItem.stockName = reso.data['FName'];
+								me.borrowItem.stockId = reso.data['FNumber'];
 								me.borrowItem.FIsStockMgr = reso.data['FIsStockMgr'];
-								me.borrowItem.positions = ''
+								me.borrowItem.positions = me.popupForm.positions
 								me.borrowItem.quantity = me.popupForm.quantity
 								me.borrowItem.fbatchNo = me.popupForm.fbatchNo
 								me.modalName2 = null
@@ -1187,10 +1187,17 @@
 					}
 				});
 			},
-			getScanInfo(reso) {
+			getScanInfo(res) {
 				var that = this;
 				let number = 0;
-				let resData = reso.split(';');
+				let resData = [];
+				if(res.split(';').length == 1){
+					resData[0] = res.split(',')[0]
+					resData[1] = res.split(',')[1]+","+res.split(',')[2]+","+res.split(',')[3]
+					resData[2] = res.split(',')[4]
+				}else{
+					resData = res.split(';')
+				}
 				/* // 判断无源单
 				if (!that.isOrder) {
 					// 判断类型是否一致

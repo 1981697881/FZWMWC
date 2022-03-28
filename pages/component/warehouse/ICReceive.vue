@@ -607,7 +607,14 @@
 			getScanInfo(reso) {
 				var that = this
 				let number = 0;
-				let resData = reso.split(';');
+				let resData = [];
+				if(reso.split(';').length == 1){
+					resData[0] = reso.split(',')[0]
+					resData[1] = reso.split(',')[1]+","+reso.split(',')[2]+","+reso.split(',')[3]
+					resData[2] = reso.split(',')[4]
+				}else{
+					resData = reso.split(';')
+				}
 				for (let i in that.cuIList) {
 					if (that.cuIList[i]['onFBarCode'].indexOf(reso) == -1) {
 						if (resData[0] == that.cuIList[i]['number']) {

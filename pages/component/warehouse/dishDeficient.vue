@@ -553,7 +553,14 @@
 			getScanInfo(res) {
 				var that = this;
 				if (that.resultA.indexOf(res) == -1) {
-					let resData = res.split(';');
+					let resData = [];
+					if(res.split(';').length == 1){
+						resData[0] = res.split(',')[0]
+						resData[1] = res.split(',')[1]+","+res.split(',')[2]+","+res.split(',')[3]
+						resData[2] = res.split(',')[4]
+					}else{
+						resData = res.split(';')
+					}
 					basic
 						.inventoryByBarcode({
 							uuid: resData[0] + "," + resData[1]

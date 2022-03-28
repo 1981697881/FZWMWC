@@ -529,7 +529,14 @@ export default {
 			var that = this;
 			let number = 0;
 			if (that.isOrder) {
-				let resData = res.split(',')
+				let resData = [];
+				if(res.split(';').length == 1){
+					resData[0] = res.split(',')[0]
+					resData[1] = res.split(',')[1]+","+res.split(',')[2]+","+res.split(',')[3]
+					resData[2] = res.split(',')[4]
+				}else{
+					resData = res.split(';')
+				}
 				for (let i in that.cuIList) {
 					if(resData[0] == that.cuIList[i]['ForderID'] && resData[1] == that.cuIList[i]['FOrderEntryID']){
 						if (that.cuIList[i]['onFBarCode'].indexOf(resData[0]+','+resData[1]+','+resData[2])) {

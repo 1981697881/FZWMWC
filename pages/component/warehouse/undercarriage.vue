@@ -341,8 +341,8 @@
 					}).then(reso => {
 						if (reso.data != null && reso.data != '') {
 							if (me.popupForm.positions != '' && me.popupForm.positions != null) {
-								me.borrowItem.stockName = reso.data['stockName'];
-								me.borrowItem.stockId = reso.data['stockNumber'];
+								me.borrowItem.stockName = reso.data['FName'];
+								me.borrowItem.stockId = reso.data['FNumber'];
 								me.borrowItem.FIsStockMgr = reso.data['FIsStockMgr'];
 								me.borrowItem.quantity = me.popupForm.quantity
 								me.borrowItem.fbatchNo = me.popupForm.fbatchNo
@@ -458,8 +458,8 @@
 				}).then(reso => {
 					if (reso.data != null && reso.data != '') {
 						me.popupForm.positions = res.result;
-						me.popupForm.stockName = reso.data['stockName'];
-						me.popupForm.stockId = reso.data['stockNumber'];
+						me.popupForm.stockName = reso.data['FName'];
+						me.popupForm.stockId = reso.data['FNumber'];
 						me.popupForm.FIsStockMgr = reso.data['FIsStockMgr'];
 					} else {
 						uni.showToast({

@@ -71,7 +71,7 @@
 			</view>
 		</view>
 		<view class="cu-modal" :class="modalName2 == 'Modal' ? 'show' : ''">
-			<view class="cu-dialog" style="height: 380upx;">
+			<view class="cu-dialog" style="height: auto;">
 				<view class="cu-bar bg-white justify-end" style="height: 60upx;">
 					<view class="content">{{ popupForm.headName }}</view>
 					<view class="action" @tap="hideModal2"><text class="cuIcon-close text-red"></text></view>
@@ -104,6 +104,15 @@
 										v-model="popupForm.positions" />
 									<button class="cu-btn round lines-red line-red shadow"
 										@tap="$manyCk(clickScanPosition)">扫码</button>
+								</view>
+							</view>
+						</view>
+					</view>
+					<view class="cu-item" style="width: 100%;">
+						<view class="flex">
+							<view class="flex-sub">
+								<view class="cu-form-group">
+									<view class="title">库存分布:{{inPosition}}</view>
 								</view>
 							</view>
 						</view>
@@ -218,6 +227,7 @@
 				skin: false,
 				listTouchStart: 0,
 				listTouchDirection: null,
+				inPosition: null,
 				deptList: [],
 				stockList: [],
 				supplierList: [],
@@ -373,6 +383,7 @@
 				if (item.quantity == null || typeof item.quantity == 'undefined') {
 					item.quantity = '';
 				}
+				
 				this.popupForm = {
 					quantity: item.quantity,
 					fbatchNo: item.fbatchNo,
@@ -380,6 +391,25 @@
 					positions: item.positions
 				};
 				this.borrowItem = item;
+				basic
+					.inventoryByBarcode({
+						uuid:  item.FNumber+ "," +item.fbatchNo
+					})
+					.then(reso => {
+						if (reso.success) {
+							let str = ''
+							reso.data.forEach((resItem)=>{
+								str +=resItem.FStockPlacename+'('+resItem.FQty+')'+','
+							})
+							this.inPosition = str
+						}
+					})
+					.catch(err => {
+						uni.showToast({
+							icon: 'none',
+							title: err.msg
+						});
+					});
 			},
 			clickScanPosition() {
 				let me = this
@@ -438,8 +468,8 @@
 						if (reso.data != null && reso.data != '') {
 							if (reso.data['FIsStockMgr']) {
 								me.borrowItem.stockName = reso.data['FName'];
-								me.borrowItem.stockId = reso.data['stockNumber'];
-								me.borrowItem.FIsStockMgr = reso.data['FNumber'];
+								me.borrowItem.stockId = reso.data['FNumber'];
+								me.borrowItem.FIsStockMgr = reso.data['FIsStockMgr'];
 								me.borrowItem.positions = me.popupForm.positions;
 								me.borrowItem.quantity = me.popupForm.quantity;
 								me.borrowItem.fbatchNo = me.popupForm.fbatchNo;
@@ -606,7 +636,6 @@
 				portData.fsupplyId = this.form.FSupplyID;
 				portData.fpostyle = this.form.FPOStyle;
 				portData.fdeptId = this.form.fdeptID;
-				console.log(portData)
 				if (result.length == 0) {
 					if (portData.fsupplyId != '' && typeof portData.fsupplyId != 'undefined') {
 						procurement
@@ -740,7 +769,14 @@
 			getScanInfo(res) {
 				var that = this;
 				let number = 0;
-				let resData = res.split(';');
+				let resData = [];
+				if(res.split(';').length == 1){
+					resData[0] = res.split(',')[0]
+					resData[1] = res.split(',')[1]+","+res.split(',')[2]+","+res.split(',')[3]
+					resData[2] = res.split(',')[4]
+				}else{
+					resData = res.split(';')
+				}
 				production
 					.getItemList({
 						number: resData[0]
@@ -806,7 +842,7 @@
 					.catch(err => {
 						uni.showToast({
 							icon: 'none',
-							title: err.msg
+							title: err.message
 						});
 					});
 			},
