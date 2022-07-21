@@ -116,6 +116,33 @@
 				</view>
 			</view>
 		</view>
+		<view class="cu-modal" :class="modalName3 == 'Modal' ? 'show' : ''">
+			<view class="cu-dialog" style="height: auto;">
+				<view class="cu-bar bg-white justify-end" style="height: 60upx;">
+					<view class="content">{{ popupForm.headName }}</view>
+					<view class="action" @tap="hideModal2"><text class="cuIcon-close text-red"></text></view>
+				</view>
+				<view>
+					<view class="cu-item" style="width: 100%;">
+						<view class="flex">
+							<view class="flex-sub">
+								<view class="cu-form-group">
+									<view class="title">数量:</view>
+									<input name="input" type="digit" style="border-bottom: 1px solid;"
+										v-model="popupForm.quantity" />
+								</view>
+							</view>
+						</view>
+					</view>
+				</view>
+				<view style="clear: both;" class="cu-bar bg-white justify-end padding-bottom-xl">
+					<view class="action">
+						<button class="cu-btn line-green text-green" @tap="hideModal3">取消</button>
+						<button class="cu-btn bg-green margin-left" @tap="$manyCk(saveCom2)">确定</button>
+					</view>
+				</view>
+			</view>
+		</view>
 		<scroll-view scroll-y class="page" :style="{ height: pageHeight + 'px' }">
 			<view class="selectTrees">
 				<!-- 一级分支 -->
@@ -162,10 +189,10 @@
 									<view class="itemO">仓位:{{ item2.FStockPlacename }}</view>
 									<view class="itemO">库存数:{{ item2.FQty }}</view>
 									<view class="itemO" style="width: 80% !important;">
-										<view class="title" style="float: left;margin-left: 25%;">出库数:</view>
-										<input name="input" @input="setQuty($event, index)" type="digit"
+										<view class="title" style="float: left;margin-left: 25%;">出库数:{{item2.quantity}}<text class="sm text-gray cuIcon-edit" @tap="showModal3(index, item2)"></text></view>
+										<!-- <input name="input" @input="setQuty($event, index)" type="digit"
 											style="font-size: 13px;text-align: left;border-bottom: 1px solid;"
-											v-model="item2.quantity" />
+											v-model="item2.quantity" /> -->
 									</view>
 								</view>
 							</view>
@@ -240,6 +267,7 @@
 				pickerVal: null,
 				modalName: null,
 				modalName2: null,
+				modalName3: null,
 				gridCol: 3,
 				form: {
 					finBillNo: null,
@@ -287,14 +315,14 @@
 					let list = this.cuIList
 					this.cuIList.forEach((list, index) => {
 						console.log(list.childrenList)
-						if(typeof(list.childrenList) != "undefined"){
+						if (typeof(list.childrenList) != "undefined") {
 							list.childrenList.forEach((item, index) => {
 								if (item.checked) {
 									number += Number(item.quantity)
 								}
 							})
 						}
-						
+
 					})
 					this.form.bNum = number
 				},
@@ -407,18 +435,16 @@
 				let list = this.cuIList[index].childrenList;
 				let count = 0;
 				list.forEach((item, index) => {
-					if (item.checked) {
-						if (item.quantity <= item.FQty) {
-							if (item.quantity != '' && item.quantity != null) {
-								count += Number(item.quantity);
-							}
-						} else {
-							item.quantity = 0;
-							return uni.showToast({
-								icon: 'none',
-								title: '输入数量不能大于库存数量'
-							});
+					if (item.quantity <= item.FQty) {
+						if (item.quantity != '' && item.quantity != null) {
+							count += Number(item.quantity);
 						}
+					} else {
+						item.quantity = 0;
+						return uni.showToast({
+							icon: 'none',
+							title: '输入数量不能大于库存数量'
+						});
 					}
 				});
 				this.cuIList[index].FCounty = count;
@@ -882,6 +908,18 @@
 					me.submitCom();
 				}
 			},
+			saveCom2() {
+				var me = this;
+				if (this.popupForm.quantity > me.borrowItem.FQty) {
+					uni.showToast({
+						icon: 'none',
+						title: '输入数量不能大于库存数量'
+					});
+				} else {
+					me.borrowItem.quantity = me.popupForm.quantity
+					me.modalName3 = null
+				}
+			},
 			del(index, item) {
 				this.cuIList.splice(index, 1);
 				this.form.bNum = this.cuIList.length;
@@ -913,6 +951,18 @@
 					positions: item.positions
 				};
 				this.borrowItem = item;
+			},showModal3(index, item) {
+				/* if (item.stockId == null || item.stockId == '') {
+					return uni.showToast({
+						icon: 'none',
+						title: '请先选择仓库！'
+					});
+				} */
+				this.modalName3 = 'Modal';
+				this.popupForm = {
+					quantity: item.quantity,
+				};
+				this.borrowItem = item;
 			},
 			hideModal(e) {
 				this.modalName = null;
@@ -920,6 +970,9 @@
 			hideModal2(e) {
 				this.modalName2 = null;
 				this.popupForm = {};
+			},
+			hideModal3(e) {
+				this.modalName3 = null;
 			},
 			// 查询前后三天日期
 			getDay(date, day) {
@@ -1105,11 +1158,11 @@
 				var that = this;
 				let number = 0;
 				let resData = [];
-				if(res.split(';').length == 1){
+				if (res.split(';').length == 1) {
 					resData[0] = res.split(',')[0]
-					resData[1] = res.split(',')[1]+","+res.split(',')[2]+","+res.split(',')[3]
+					resData[1] = res.split(',')[1] + "," + res.split(',')[2] + "," + res.split(',')[3]
 					resData[2] = res.split(',')[4]
-				}else{
+				} else {
 					resData = res.split(';')
 				}
 				basic

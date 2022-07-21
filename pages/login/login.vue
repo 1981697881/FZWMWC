@@ -62,12 +62,9 @@
 			<view class="btn-row">
 				<button type="primary" class="primary" @tap="bindLogin">登录</button>
 			</view>
-		
 		</view>
 	</view>
-	
 </template>
-
 <script>
 	import service from '../../service.js';
 	import login from '@/api/login';
@@ -76,8 +73,7 @@
 		mapMutations
 	} from 'vuex'
 	import {config} from '@/plugins/request/js/config.js';
-	import mInput from '@/components/m-input.vue'
-
+	import mInput from '@/components/m-input.vue'	
 	export default {
 		components: {
 			mInput

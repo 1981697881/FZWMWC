@@ -224,6 +224,7 @@ export default {
 				}else{
 					resData = res.split(';')
 				}
+				that.keyword = resData[0] + "," + resData[1]
 				basic
 					.inventoryByBarcode({
 						uuid: resData[0] + "," + resData[1]

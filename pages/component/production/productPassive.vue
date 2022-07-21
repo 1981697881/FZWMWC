@@ -5,7 +5,7 @@
 			<block slot="backText">返回</block>
 			<block slot="content">产品入库</block>
 		</cu-custom>
-		<!-- <uni-fab
+		<uni-fab
 	    :pattern="pattern"
 	    :horizontal="horizontal"
 		:vertical="vertical"
@@ -13,7 +13,7 @@
 		distable
 		:direction="direction"
 		 @fabClick="fabClick"
-		 ></uni-fab> -->
+		 ></uni-fab>
 		<view class="box getheight">
 			<view class="cu-bar bg-white solid-bottom" style="height: 60upx;">
 				<view class="action">
@@ -104,7 +104,7 @@
 									<input name="input" style="border-bottom: 1px solid;"
 										v-model="popupForm.positions"></input>
 									<button class="cu-btn round lines-red line-red shadow"
-										@tap="$manyCk(scanPosition)">扫码</button>
+										@tap="$manyCk(clickScanPosition)">扫码</button>
 								</view>
 							</view>
 						</view>
@@ -235,7 +235,11 @@
 			me.loadModal = true;
 			uni.$on('scancodedate', function(data) {
 				// _this 这里面的方法用这个 _this.code(data.code)
-				me.getScanInfo(data.code);
+				if (me.modalName2 == null) {
+					me.getScanInfo(data.code);
+				} else {
+					me.scanPosition(data.code);
+				}
 			});
 			if (JSON.stringify(option) != "{}") {
 				this.isOrder = true
@@ -309,8 +313,6 @@
 						}
 					});
 					me.initMain()
-
-
 				}
 			}
 
@@ -318,6 +320,17 @@
 		onUnload() {
 			// 移除监听事件
 			uni.$off('scancodedate');
+		},
+		cuIList: {
+			handler(newValue, oldValue) {
+				let number = 0
+				this.cuIList.forEach((item) => {
+					console.log(item);
+					number += Number(item.quantity)
+				})
+				this.form.bNum = number
+			},
+			deep: true
 		},
 		methods: {
 			clearList() {
@@ -481,49 +494,59 @@
 				}
 			},
 			submitCom() {
-				var me = this
+				var me = this;
 				if (me.popupForm.positions != '' && me.popupForm.positions != null) {
 					basic.selectFdCStockIdByFdCSPId({
-						'fdCSPId': me.popupForm.positions
+						'FNumber': me.popupForm.positions,
+						'FName': me.popupForm.positions
 					}).then(reso => {
 						if (reso.data != null && reso.data != '') {
 							if (reso.data['FIsStockMgr']) {
-								me.borrowItem.stockName = reso.data['stockName'];
-								me.borrowItem.stockId = reso.data['stockNumber'];
+								me.borrowItem.stockName = reso.data['FName'];
+								me.borrowItem.stockId = reso.data['FNumber'];
 								me.borrowItem.FIsStockMgr = reso.data['FIsStockMgr'];
-								me.borrowItem.positions = me.popupForm.positions
-								me.borrowItem.quantity = me.popupForm.quantity
-								me.borrowItem.fbatchNo = me.popupForm.fbatchNo
-								me.modalName2 = null
+								me.borrowItem.positions = me.popupForm.positions;
+								me.borrowItem.quantity = me.popupForm.quantity;
+								me.borrowItem.fbatchNo = me.popupForm.fbatchNo;
+								me.modalName2 = null;
 							} else {
-								me.borrowItem.stockName = reso.data['stockName'];
-								me.borrowItem.stockId = reso.data['stockNumber'];
+								me.borrowItem.stockName = reso.data['FName'];
+								me.borrowItem.stockId = reso.data['FNumber'];
 								me.borrowItem.FIsStockMgr = reso.data['FIsStockMgr'];
-								me.borrowItem.positions = ''
-								me.borrowItem.quantity = me.popupForm.quantity
-								me.borrowItem.fbatchNo = me.popupForm.fbatchNo
-								me.modalName2 = null
+								me.borrowItem.positions = me.popupForm.positions;
+								me.borrowItem.quantity = me.popupForm.quantity;
+								me.borrowItem.fbatchNo = me.popupForm.fbatchNo;
+								me.modalName2 = null;
 							}
 						} else {
 							uni.showToast({
 								icon: 'none',
-								title: '该库位不存在仓库中！',
+								title: '该库位不存在仓库中！'
 							});
 						}
-					})
+					});
 				} else {
 					if (me.popupForm.FIsStockMgr) {
 						return uni.showToast({
 							icon: 'none',
-							title: '仓位已启用，请输入仓位！',
+							title: '仓位已启用，请输入仓位！'
 						});
 					} else {
-						me.borrowItem.positions = ''
-						me.borrowItem.quantity = me.popupForm.quantity
-						me.borrowItem.fbatchNo = me.popupForm.fbatchNo
-						me.modalName2 = null
+						me.borrowItem.positions = '';
+						me.borrowItem.quantity = me.popupForm.quantity;
+						me.borrowItem.fbatchNo = me.popupForm.fbatchNo;
+						me.modalName2 = null;
 					}
 				}
+				me.$forceUpdate();
+				setTimeout(() => {
+				 let number = 0
+				 me.cuIList.forEach((item) => {
+				 	console.log(item);
+				 	number += Number(item.quantity)
+				 })
+				 me.form.bNum = number
+				}, 1000);
 			},
 			saveCom() {
 				var me = this
@@ -637,27 +660,34 @@
 				this.$set(item, 'positions', '');
 				this.$set(item, 'FIsStockMgr', this.stockList[e.detail.value].FIsStockMgr);
 			},
-			scanPosition() {
+			clickScanPosition() {
 				let me = this
 				uni.scanCode({
 					success: function(res) {
-						basic.selectFdCStockIdByFdCSPId({
-							'fdCSPId': res.result
-						}).then(reso => {
-							if (reso.data != null && reso.data != '') {
-								me.popupForm.positions = res.result;
-								me.popupForm.stockName = reso.data['stockName'];
-								me.popupForm.stockId = reso.data['stockNumber'];
-								me.popupForm.FIsStockMgr = reso.data['FIsStockMgr'];
-							} else {
-								uni.showToast({
-									icon: 'none',
-									title: '该库位不存在仓库中！',
-								});
-							}
-						})
+						me.scanPosition(res.result)
 					},
 				})
+			},
+			scanPosition(res) {
+				let me = this
+				basic.selectFdCStockIdByFdCSPId({
+					'FNumber': res,
+					'FName': res
+				}).then(reso => {
+					console.log(reso)
+					if (reso.data != null && reso.data != '') {
+						me.popupForm.positions = res;
+						me.popupForm.stockName = reso.data['FName'];
+						me.popupForm.stockId = reso.data['FNumber'];
+						me.popupForm.FIsStockMgr = '';
+					} else {
+						uni.showToast({
+							icon: 'none',
+							title: '该库位不存在仓库中！',
+						});
+					}
+				})
+			
 			},
 			// 调用摄像头扫描
 			fabClick() {
@@ -670,6 +700,86 @@
 			},
 			// 扫码解析
 			getScanInfo(res) {
+				var that = this;
+				let number = 0;
+				let resData = [];
+				if(res.split(';').length == 1){
+					resData[0] = res.split(',')[0]
+					resData[1] = res.split(',')[1]+","+res.split(',')[2]+","+res.split(',')[3]
+					resData[2] = res.split(',')[4]
+				}else{
+					resData = res.split(';')
+				}
+				production
+					.getItemList({
+						number: resData[0]
+					})
+					.then(reso => {
+						if (reso.success) {
+							if (that.isOrder) {
+								for (let i in that.cuIList) {
+									if (resData[0] == that.cuIList[i]['FNumber']) {
+										if (that.cuIList[i]['onFBarCode'].indexOf(res) == -1) {
+											that.cuIList[i]['quantity'] = parseFloat(that.cuIList[i][
+												'quantity'
+											]) + 1
+											that.cuIList[i]['onFBarCode'].push(res)
+											break;
+										} else {
+											uni.showToast({
+												icon: 'none',
+												title: '该条码已扫描！'
+											});
+											break;
+										}
+									} else {
+										number++;
+									}
+								}
+								if (number == that.cuIList.length) {
+									uni.showToast({
+										icon: 'none',
+										title: '该物料不在所选单据中！'
+									});
+								}
+							} else {
+								for (let i in that.cuIList) {
+									if (resData[0] == that.cuIList[i]['FNumber'] && resData[1] == that.cuIList[i]['fbatchNo']) {
+										if (that.cuIList[i]['onFBarCode'].indexOf(res) == -1) {
+											that.cuIList[i]['quantity'] = parseFloat(that.cuIList[i][
+												'quantity'
+											]) + 1
+											that.cuIList[i]['onFBarCode'].push(res)
+											number++;
+											break;
+										} else {
+											uni.showToast({
+												icon: 'none',
+												title: '该条码已扫描！'
+											});
+											number++;
+											break;
+										}
+									}
+								}
+								if (number == 0) {
+									reso.data[0]['quantity'] = 1
+									reso.data[0]['fbatchNo'] = resData[1]
+									reso.data[0]['onFBarCode'] = [res]
+									that.cuIList.push(reso.data[0])
+									that.form.bNum = that.cuIList.length
+								}
+							}
+						}
+					})
+					.catch(err => {
+						uni.showToast({
+							icon: 'none',
+							title: err.message
+						});
+					});
+			},
+			/* getScanInfo(res) {
 				var that = this;
 				let number = 0;
 				let resData = [];
@@ -771,7 +881,7 @@
 					});
 				})
 
-			},
+			}, */
 			// ListTouch触摸开始
 			ListTouchStart(e) {
 				this.listTouchStart = e.touches[0].pageX

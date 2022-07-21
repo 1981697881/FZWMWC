@@ -116,16 +116,42 @@
 				</view>
 			</view>
 		</view>
+		<view class="cu-modal" :class="modalName3 == 'Modal' ? 'show' : ''">
+			<view class="cu-dialog" style="height: auto;">
+				<view class="cu-bar bg-white justify-end" style="height: 60upx;">
+					<view class="content">{{ popupForm.headName }}</view>
+					<view class="action" @tap="hideModal2"><text class="cuIcon-close text-red"></text></view>
+				</view>
+				<view>
+					<view class="cu-item" style="width: 100%;">
+						<view class="flex">
+							<view class="flex-sub">
+								<view class="cu-form-group">
+									<view class="title">数量:</view>
+									<input name="input" type="digit" style="border-bottom: 1px solid;"
+										v-model="popupForm.quantity" />
+								</view>
+							</view>
+						</view>
+					</view>
+				</view>
+				<view style="clear: both;" class="cu-bar bg-white justify-end padding-bottom-xl">
+					<view class="action">
+						<button class="cu-btn line-green text-green" @tap="hideModal3">取消</button>
+						<button class="cu-btn bg-green margin-left" @tap="$manyCk(saveCom2)">确定</button>
+					</view>
+				</view>
+			</view>
+		</view>
 		<scroll-view scroll-y class="page" :style="{ height: pageHeight + 'px' }">
-			<view v-for="(item, index) in cuIList" :key="index">
+			<!-- <view v-for="(item, index) in cuIList" :key="index">
 				<view class="cu-list menu-avatar">
 					<view class="cu-item" style="width: 100%;margin-top: 2px;height: 260upx;"
 						:class="modalName == 'move-box-' + index ? 'move-cur' : ''" @touchstart="ListTouchStart"
 						@touchmove="ListTouchMove" @touchend="ListTouchEnd" :data-target="'move-box-' + index">
 						<view style="clear: both;width: 100%;">
-							<view style="clear: both;width: 100%;" class="grid text-center col-2" data-target="Modal"
-								data-number="item.number">
-								<!-- @tap="showModal2(index, item)" -->
+							<view style="clear: both;width: 100%;" @tap="showModal2(index, item)"
+								class="grid text-center col-2" data-target="Modal" data-number="item.number">
 								<view class="text-grey">序号:{{ (item.index = index + 1) }}</view>
 								<view class="text-grey">编码:{{ item.number }}</view>
 								<view class="text-grey">名称:{{ item.name }}</view>
@@ -153,14 +179,15 @@
 						</view>
 					</view>
 				</view>
-			</view>
-			<!-- <view class="selectTrees">
+			</view> -->
+			<view class="selectTrees">
 				<view class="lv1list" v-for="(item, index) in cuIList" :key="index"
 					@longpress="deleteItem(index, item)">
 					<view class="tree-one" style="background: white;width: 100%;margin-top: 2px;height: 150upx;">
 						<checkbox-group v-if="showCheck"
 							style="position: absolute;height: 80rpx;line-height: 150upx; left:20rpx;z-index: 1;">
 							<checkbox :checked="item.checked" @click="_chooseAll(item, index)" />
+						</checkbox-group>
 						<label
 							style="height:100%;display: flex;align-items: center;padding: 20rpx;position: relative;border-bottom: 1px solid #e4e4e4;"
 							@click="_showlv2(index)">
@@ -179,6 +206,7 @@
 							<i class="cuIcon-fold" v-else
 								style="position: absolute;top: 40%;right: 2%;font-size: 48rpx;"></i>
 						</label>
+
 					</view>
 					<view v-if="item.show && item.childrenList">
 						<view class="tree-two" v-for="(item2, index2) in item.childrenList" :key="index2"
@@ -195,17 +223,17 @@
 									<view class="itemO">仓位:{{ item2.FStockPlacename }}</view>
 									<view class="itemO">库存数:{{ item2.FQty }}</view>
 									<view class="itemO" style="width: 80% !important;">
-										<view class="title" style="float: left;margin-left: 25%;">出库数:</view>
-										<input name="input" @input='setQuty($event, index)' type="digit"
+										<view class="title" style="float: left;margin-left: 25%;">出库数:{{item2.quantity}}<text class="sm text-gray cuIcon-edit" @tap="showModal3(index, item2)"></text></view>
+										<!-- <input name="input" @input='setQuty($event, index,item)' type="number"
 											style="font-size: 13px;text-align: left;border-bottom: 1px solid;"
-											v-model="item2.quantity" />
+											v-model="item2.quantity" /> -->
 									</view>
-								</view>
+								</view> 
 							</view>
 						</view>
 					</view>
 				</view>
-			</view> -->
+			</view>
 			<view class="cu-bar tabbar shadow foot">
 				<view class="box text-center">
 					<button :disabled="isClick" class="cu-btn bg-green shadow-blur round lg"
@@ -268,6 +296,7 @@
 				pickerVal: null,
 				modalName: null,
 				modalName2: null,
+				modalName3: null,
 				gridCol: 3,
 				form: {
 					finBillNo: null,
@@ -317,11 +346,31 @@
 			this.isScanOf = true;
 		},
 		watch: {
-			cuIList: {
+			/* cuIList: {
 				handler(newValue, oldValue) {
 					let number = 0
 					this.cuIList.forEach((item) => {
+						console.log(item);
 						number += Number(item.quantity)
+					})
+					this.form.bNum = number
+				},
+				deep: true
+			} */
+			cuIList: {
+				handler(newValue, oldValue) {
+					let number = 0
+					let list = this.cuIList
+					this.cuIList.forEach((list, index) => {
+						console.log(list.childrenList)
+						if (typeof(list.childrenList) != "undefined") {
+							list.childrenList.forEach((item, index) => {
+								if (item.checked) {
+									number += Number(item.quantity)
+								}
+							})
+						}
+
 					})
 					this.form.bNum = number
 				},
@@ -426,22 +475,21 @@
 			}
 		},
 		methods: {
-			setQuty(val, index) {
+			setQuty(val, index, items) {
+				let that = this;
 				let list = this.cuIList[index].childrenList
 				let count = 0
 				list.forEach((item, index) => {
-					if (item.checked) {
-						if (item.quantity <= item.FQty) {
-							if (item.quantity != '' && item.quantity != null) {
-								count += Number(item.quantity)
-							}
-						} else {
-							uni.showToast({
-								icon: 'none',
-								title: '输入数量不能大于库数量'
-							});
+					if (item.quantity <= item.FQty) {
+						if (item.quantity != '' && item.quantity != null) {
+							count += Number(item.quantity)
 						}
-
+					} else {
+						that.$set(items, 'quantity', item.FQty)
+						uni.showToast({
+							icon: 'none',
+							title: '输入数量不能大于库存数量'
+						});
 					}
 				})
 				this.cuIList[index].FCounty = count
@@ -566,9 +614,6 @@
 							});
 						});
 				}
-
-
-
 			},
 			_chooseOne(i1, i2) {
 				if (this.cuIList[i1].childrenList[i2].checked) {
@@ -718,57 +763,59 @@
 				let isBatchNo = false;
 				let batchMsg = '';
 				let cIndex = 0
-				/* for (let i in list) {
-					let children = list[i].childrenList */
-				list.forEach((item, index) => {
-					/* if (item.checked) {
-						cIndex++ */
-					let obj = {};
-					obj.fcostobjid = me.form.FCostObjNumber;
-					obj.fauxqty = item.quantity;
-					obj.fentryId = index;
-					obj.finBillNo = item.FBillNo;
-					obj.fbatchNo = item.fbatchNo;
-					/* if (list[i].FBatchManager) {
-						if (list[i].fbatchNo != '' && list[i].fbatchNo != null) {
-							obj.fbatchNo = list[i].fbatchNo;
-							isBatchNo = true;
-						} else {
-							isBatchNo = false;
-							batchMsg = '批号已启用，不允许为空';
-							break;
+				for (let i in list) {
+					let children = list[i].childrenList
+					children.forEach((item, index) => {
+						/* list.forEach((item, index) => { */
+						if (item.checked) {
+							cIndex++
+							let obj = {};
+							obj.fcostobjid = me.form.FCostObjNumber;
+							obj.fauxqty = item.quantity;
+							obj.fentryId = index;
+							obj.finBillNo = item.FBillNo;
+							obj.fbatchNo = item.fbatchNo;
+							/* if (list[i].FBatchManager) {
+								if (list[i].fbatchNo != '' && list[i].fbatchNo != null) {
+									obj.fbatchNo = list[i].fbatchNo;
+									isBatchNo = true;
+								} else {
+									isBatchNo = false;
+									batchMsg = '批号已启用，不允许为空';
+									break;
+								}
+							} else {
+								if (list[i].fbatchNo == '' || list[i].fbatchNo == null) {
+									obj.fbatchNo = list[i].fbatchNo;
+									isBatchNo = true;
+								} else {
+									batchMsg = '批号未启用，不允许输入';
+									isBatchNo = false;
+									break;
+								}
+							} */
+							obj.fitemId = item.number;
+							obj.fdCSPId = item.positions;
+							obj.fauxprice = list[i].Fauxprice != null && typeof list[i].Fauxprice != 'undefined' ?
+								list[i].Fauxprice : 0;
+							obj.famount = list[i].Famount != null && typeof list[i].Famount != 'undefined' ? list[
+									i].Famount :
+								0;
+							obj.fsCStockId = item.stockId;
+							/* if (list[i].stockId == null || typeof list[i].stockId == 'undefined') {
+								result.push(list[i].index);
+							} */
+							obj.fsourceBillNo = list[i].fsourceBillNo == null || list[i].fsourceBillNo ==
+								'undefined' ? '' : list[i].fsourceBillNo;
+							obj.fsourceEntryId = list[i].fsourceEntryID == null || list[i].fsourceEntryID ==
+								'undefined' ? '' : list[i].fsourceEntryID;
+							obj.fsourceTranType = list[i].fsourceTranType == null || list[i].fsourceTranType ==
+								'undefined' ? '' : list[i].fsourceTranType;
+							obj.funitId = item.FUnitID;
+							array.push(obj);
 						}
-					} else {
-						if (list[i].fbatchNo == '' || list[i].fbatchNo == null) {
-							obj.fbatchNo = list[i].fbatchNo;
-							isBatchNo = true;
-						} else {
-							batchMsg = '批号未启用，不允许输入';
-							isBatchNo = false;
-							break;
-						}
-					} */
-					obj.fitemId = item.number;
-					obj.fdCSPId = item.positions;
-					obj.fauxprice = item.Fauxprice != null && typeof item.Fauxprice != 'undefined' ?
-						item.Fauxprice : 0;
-					obj.famount = item.Famount != null && typeof item.Famount != 'undefined' ? item.Famount :
-						0;
-					obj.fsCStockId = item.stockId;
-					/* if (list[i].stockId == null || typeof list[i].stockId == 'undefined') {
-						result.push(list[i].index);
-					} */
-					obj.fsourceBillNo = item.fsourceBillNo == null || item.fsourceBillNo ==
-						'undefined' ? '' : item.fsourceBillNo;
-					obj.fsourceEntryId = item.fsourceEntryID == null || item.fsourceEntryID ==
-						'undefined' ? '' : item.fsourceEntryID;
-					obj.fsourceTranType = item.fsourceTranType == null || item.fsourceTranType ==
-						'undefined' ? '' : item.fsourceTranType;
-					obj.funitId = item.FUnitID;
-					array.push(obj);
-					/* } */
-				})
-				/* } */
+					})
+				}
 				portData.items = array;
 				portData.ftranType = 24;
 				portData.finBillNo = this.form.finBillNo;
@@ -879,13 +926,35 @@
 						me.modalName2 = null
 					}
 				}
+				me.$forceUpdate();
+				setTimeout(() => {
+					let number = 0
+					me.cuIList.forEach((item) => {
+						console.log(item);
+						number += Number(item.quantity)
+					})
+					me.form.bNum = number
+				}, 1000);
+
+			},
+			saveCom2() {
+				var me = this;
+				if (this.popupForm.quantity > me.borrowItem.FQty) {
+					uni.showToast({
+						icon: 'none',
+						title: '输入数量不能大于库存数量'
+					});
+				} else {
+					me.borrowItem.quantity = me.popupForm.quantity
+					me.modalName3 = null
+				}
 			},
 			saveCom() {
 				var me = this;
 				if (this.popupForm.quantity > me.borrowItem.Fauxqty) {
 					uni.showModal({
 						title: '温馨提示',
-						content: '领料数量大于单据数量！请确认！',
+						content: '领料数量不能大于库存数量！请确认！',
 						success: function(res) {
 							if (res.confirm) {
 								me.submitCom()
@@ -897,7 +966,6 @@
 				} else {
 					me.submitCom()
 				}
-
 			},
 			del(index, item) {
 				this.cuIList.splice(index, 1);
@@ -935,6 +1003,7 @@
 				if (item.quantity == null || typeof item.quantity == 'undefined') {
 					item.quantity = '';
 				}
+				console.log(item);
 				this.popupForm = {
 					quantity: item.quantity,
 					fbatchNo: item.fbatchNo,
@@ -942,14 +1011,28 @@
 					positions: item.positions
 				};
 				this.borrowItem = item;
+			},showModal3(index, item) {
+				/* if (item.stockId == null || item.stockId == '') {
+					return uni.showToast({
+						icon: 'none',
+						title: '请先选择仓库！'
+					});
+				} */
+				this.modalName3 = 'Modal';
+				this.popupForm = {
+					quantity: item.quantity,
+				};
+				this.borrowItem = item;
 			},
 			hideModal(e) {
 				this.modalName = null;
-
 			},
 			hideModal2(e) {
 				this.modalName2 = null;
 				this.popupForm = {};
+			},
+			hideModal3(e) {
+				this.modalName3 = null;
 			},
 			// 查询前后三天日期
 			getDay(date, day) {
@@ -1139,7 +1222,7 @@
 								if (choose[j]['isEnable'] == 2) {
 									choose[j]['uuid'] = null;
 								}
-								if (Number(that.cuIList[i]['quantity'])< Number( choose[j]['FQty'])) {
+								if (Number(that.cuIList[i]['quantity']) < Number(choose[j]['FQty'])) {
 									that.cuIList[i]['quantity'] = parseFloat(that.cuIList[i]['quantity']) + parseFloat(
 										choose[
 											j]['quantity']);
@@ -1191,11 +1274,11 @@
 				var that = this;
 				let number = 0;
 				let resData = [];
-				if(res.split(';').length == 1){
+				if (res.split(';').length == 1) {
 					resData[0] = res.split(',')[0]
-					resData[1] = res.split(',')[1]+","+res.split(',')[2]+","+res.split(',')[3]
+					resData[1] = res.split(',')[1] + "," + res.split(',')[2] + "," + res.split(',')[3]
 					resData[2] = res.split(',')[4]
-				}else{
+				} else {
 					resData = res.split(';')
 				}
 				/* // 判断无源单
@@ -1238,15 +1321,17 @@
 						uuid: resData[0] + "," + resData[1]
 					})
 					.then(reso => {
+						console.log(reso.data)
 						if (reso.success) {
-							let data = reso.data;
+							that.chooseClick([reso.data[0]]);
+							/* let data = reso.data;
 							that.chooseList = []
 							console.log(data)
 							for (let i in reso.data) {
 								that.chooseList.push(reso.data[i])
 							}
 							that.show = true
-
+ */
 						}
 					})
 					.catch(err => {

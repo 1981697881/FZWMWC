@@ -108,13 +108,9 @@
 							</view>
 						</view>
 					</view>
-					<view class="cu-item" style="width: 100%;">
-						<view class="flex">
-							<view class="flex-sub">
-								<view class="cu-form-group">
-									<view class="title">库存分布:{{inPosition}}</view>
-								</view>
-							</view>
+					<view class="cu-item" style="width: 100%;text-align: left;word-break:break-all;">
+						<view class="cu-form-group" >
+							库存分布:{{inPosition}}
 						</view>
 					</view>
 				</view>
@@ -287,8 +283,6 @@
 				basic
 					.getOrderList({
 						billNo: option.billNo,
-						/* startDate: option.startDate,
-							 endDate: option.endDate, */
 						tranType: option.tranType,
 						type: option.type
 					})
@@ -383,7 +377,7 @@
 				if (item.quantity == null || typeof item.quantity == 'undefined') {
 					item.quantity = '';
 				}
-				
+
 				this.popupForm = {
 					quantity: item.quantity,
 					fbatchNo: item.fbatchNo,
@@ -393,13 +387,13 @@
 				this.borrowItem = item;
 				basic
 					.inventoryByBarcode({
-						uuid:  item.FNumber+ "," +item.fbatchNo
+						uuid: item.FNumber + "," + item.fbatchNo
 					})
 					.then(reso => {
 						if (reso.success) {
 							let str = ''
-							reso.data.forEach((resItem)=>{
-								str +=resItem.FStockPlacename+'('+resItem.FQty+')'+','
+							reso.data.forEach((resItem) => {
+								str += resItem.FStockPlacename + '(' + resItem.FQty + ')' + ','
 							})
 							this.inPosition = str
 						}
@@ -604,7 +598,7 @@
 					obj.fauxprice = list[i].Fauxprice != null && typeof list[i].Fauxprice != 'undefined' ? list[i]
 						.Fauxprice : 0;
 					obj.famount = list[i].Famount != null && typeof list[i].Famount != 'undefined' ? list[i].Famount : 0;
-					if (list[i].positions == null || typeof list[i].positions == '') {
+					if (list[i].positions == null || list[i].positions == '') {
 						result.push(list[i].index);
 					}
 					if (list[i].fbatchNo == null || typeof list[i].fbatchNo == 'undefined') {
@@ -770,11 +764,11 @@
 				var that = this;
 				let number = 0;
 				let resData = [];
-				if(res.split(';').length == 1){
+				if (res.split(';').length == 1) {
 					resData[0] = res.split(',')[0]
-					resData[1] = res.split(',')[1]+","+res.split(',')[2]+","+res.split(',')[3]
+					resData[1] = res.split(',')[1] + "," + res.split(',')[2] + "," + res.split(',')[3]
 					resData[2] = res.split(',')[4]
-				}else{
+				} else {
 					resData = res.split(';')
 				}
 				production
@@ -811,7 +805,9 @@
 								}
 							} else {
 								for (let i in that.cuIList) {
-									if (resData[0] == that.cuIList[i]['FNumber'] && resData[1] == that.cuIList[i]['fbatchNo']) {
+									if (resData[0] == that.cuIList[i]['FNumber'] && resData[1] == that.cuIList[i][
+											'fbatchNo'
+										]) {
 										if (that.cuIList[i]['onFBarCode'].indexOf(res) == -1) {
 											that.cuIList[i]['quantity'] = parseFloat(that.cuIList[i][
 												'quantity'
