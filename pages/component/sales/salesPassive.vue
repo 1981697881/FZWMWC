@@ -36,6 +36,7 @@
 						clearable v-model="form.fdCStockId" @change="stockChange"></ld-select>
 				</view>
 			</view>
+			
 			<view class="cu-bar bg-white solid-bottom" style="height: 60upx;">
 				<view class="action">
 					<view class="title">客户:{{ form.FCustName }}</view>
@@ -52,8 +53,32 @@
 			</view>
 			<view class="cu-bar bg-white solid-bottom" style="height: 60upx;">
 				<view class="action">
+					<view class="title">成本核算对象:</view>
+					<input name="input" style="font-size: 13px;text-align: left;" v-model="form.FEntrySelf" />
+				</view>
+				<button class="cu-btn round lines-blue line-blue shadow" @tap="showModal4"
+					data-target="Modal">扫码</button>
+			</view>
+			<view class="cu-bar bg-white solid-bottom" style="height: 60upx;">
+				<view class="action">
 					<view class="title">备注:</view>
 					<input name="input" style="font-size: 13px;text-align: left;" v-model="form.fnote" />
+				</view>
+			</view>
+		</view>
+		<view class="cu-modal" :class="modalName4 == 'Modal' ? 'show' : ''">
+			<view class="cu-dialog" style="height: 350upx;">
+				<view class="cu-bar bg-white justify-end" style="height: 60upx;">
+					<view class="content">扫描</view>
+					<view class="action" @tap="hideModal4"><text class="cuIcon-close text-red"></text></view>
+				</view>
+				<view class="padding-sm">
+					<view class="cu-item">
+						<view class="content">
+							<text class="text-grey">{{form.FEntrySelf}}</text>
+						</view>
+						<view class="action"><text class="text-grey"></text></view>
+					</view>
 				</view>
 			</view>
 		</view>
@@ -144,17 +169,51 @@
 			</view>
 		</view>
 		<scroll-view scroll-y class="page" :style="{ height: pageHeight + 'px' }">
-			<view class="selectTrees">
-				<!-- 一级分支 -->
+			<view v-for="(item, index) in cuIList" :key="index">
+				<view class="cu-list menu-avatar">
+					<view class="cu-item" style="width: 100%;margin-top: 2px;height: 260upx;"
+						:class="modalName == 'move-box-' + index ? 'move-cur' : ''" @touchstart="ListTouchStart"
+						@touchmove="ListTouchMove" @touchend="ListTouchEnd" :data-target="'move-box-' + index">
+						<view style="clear: both;width: 100%;">
+							<view style="clear: both;width: 100%;" class="grid text-center col-2" data-target="Modal"
+								data-number="item.number" @tap="showModal3(index, item)">
+								<!-- @tap="showModal2(index, item)" -->
+								<view class="text-grey">序号:{{ (item.index = index + 1) }}</view>
+								<view class="text-grey">编码:{{ item.number }}</view>
+								<view class="text-grey">名称:{{ item.name }}</view>
+								<view class="text-grey">数量:{{ item.quantity }}</view>
+								<view class="text-grey">批号:{{ item.fbatchNo }}</view>
+								<view class="text-grey">单位:{{ item.unitName }}</view>
+								<view class="text-grey">规格:{{ item.model }}</view>
+								<view class="text-grey">仓位:{{ item.positions }}</view>
+								<view class="text-grey">{{ item.stockName }}</view>
+							</view>
+							<!-- <view class="text-grey text-center">
+								<picker @change="PickerChange($event, item)" :value="pickerVal" :range-key="'FName'"
+										:range="stockList">
+									<view class="picker">
+										<button class="cu-btn sm round bg-green shadow">
+											<text class="cuIcon-homefill"></text>
+											仓库
+										</button>
+									</view>
+								</picker>
+							</view> -->
+						</view>
+						<view class="move">
+							<view class="bg-red" @tap="del(index, item)">删除</view>
+						</view>
+					</view>
+				</view>
+			</view>
+			<!-- <view class="selectTrees">
 				<view class="lv1list" v-for="(item, index) in cuIList" :key="index"
 					@longpress="deleteItem(index, item)">
 					<view class="tree-one" style="background: white;width: 100%;margin-top: 2px;height: 150upx;">
-						<!-- 单选框组件 -->
 						<checkbox-group v-if="showCheck"
 							style="position: absolute;height: 80rpx;line-height: 150upx; left:20rpx;z-index: 1;">
 							<checkbox :checked="item.checked" @click="_chooseAll(item, index)" />
 						</checkbox-group>
-						<!-- 名字和iconfont -->
 						<label
 							style="height:100%;display: flex;align-items: center;padding: 20rpx;position: relative;border-bottom: 1px solid #e4e4e4;"
 							@click="_showlv2(index)">
@@ -166,14 +225,12 @@
 								<view class="itemT">应发数量:{{ item.Fauxqty }}</view>
 								<view class="itemT">实际数量:{{ item.FCounty }}</view>
 							</view>
-							<!-- <view class="deleteBtn" v-if="showDelete" @click.stop="deleteItem(item, index)">删除</view> -->
 							<i class="cuIcon-unfold" v-if="item.show"
 								style="position: absolute;top: 40%;right: 2%;font-size: 48rpx;"></i>
 							<i class="cuIcon-fold" v-else
 								style="position: absolute;top: 40%;right: 2%;font-size: 48rpx;"></i>
 						</label>
 					</view>
-					<!-- 二级分支 -->
 					<view v-if="item.show && item.childrenList">
 						<view class="tree-two" v-for="(item2, index2) in item.childrenList" :key="index2"
 							style="display: flex;">
@@ -190,16 +247,13 @@
 									<view class="itemO">库存数:{{ item2.FQty }}</view>
 									<view class="itemO" style="width: 80% !important;">
 										<view class="title" style="float: left;margin-left: 25%;">出库数:{{item2.quantity}}<text class="sm text-gray cuIcon-edit" @tap="showModal3(index, item2)"></text></view>
-										<!-- <input name="input" @input="setQuty($event, index)" type="digit"
-											style="font-size: 13px;text-align: left;border-bottom: 1px solid;"
-											v-model="item2.quantity" /> -->
 									</view>
 								</view>
 							</view>
 						</view>
 					</view>
 				</view>
-			</view>
+			</view> -->
 			<view class="cu-bar tabbar shadow foot">
 				<view class="box text-center">
 					<button :disabled="isClick" class="cu-btn bg-green shadow-blur round lg"
@@ -264,16 +318,19 @@
 				loadModal: false,
 				onoff: true,
 				isClick: false,
+				isScanOf: false,
 				pickerVal: null,
 				modalName: null,
 				modalName2: null,
 				modalName3: null,
+				modalName4: null,
 				gridCol: 3,
 				form: {
 					finBillNo: null,
 					fdate: '',
 					bNum: 0,
 					fnote: '',
+					FEntrySelf: '',
 					FCustNumber: '',
 					fbillerID: null,
 					fdCStockId: '',
@@ -332,13 +389,19 @@
 		onUnload() {
 			// 移除监听事件
 			uni.$off('scancodedate');
+			this.isScanOf = true;
 		},
 		onLoad: function(option) {
 			let me = this;
 			uni.$on('scancodedate', function(data) {
+				me.isScanOf = true;
 				// _this 这里面的方法用这个 _this.code(data.code)
 				if (!me.isOrder) {
-					me.getScanInfo(data.code);
+					if (me.modalName4 == null) {
+						me.getScanInfo(data.code);
+					} else {
+						me.scanCostObject(data.code);
+					}
 				}
 			});
 			if (JSON.stringify(option) != '{}') {
@@ -431,6 +494,12 @@
 			}
 		},
 		methods: {
+			scanCostObject(res) {
+				let me = this;
+				me.form.FEntrySelf = res;
+				me.$set(me.form,'FEntrySelf',res)
+				me.modalName4 = null;
+			},
 			setQuty(val, index) {
 				let list = this.cuIList[index].childrenList;
 				let count = 0;
@@ -730,6 +799,7 @@
 							let obj = {};
 							obj.fauxqty = item.quantity;
 							obj.fentryId = cIndex;
+							obj.fcostobjid = me.form.FEntrySelf;
 							obj.finBillNo = item.FBillNo;
 							obj.fbatchNo = item.FBatchNo;
 							/* if (list[i].FBatchManager) {
@@ -821,6 +891,21 @@
 								icon: 'none',
 								title: err.msg
 							});
+							basic
+								.getBillNo({
+									TranType: 21
+								})
+								.then(resBill => {
+									if (resBill.success) {
+										me.form.finBillNo = resBill.data;
+									}
+								})
+								.catch(errBill => {
+									uni.showToast({
+										icon: 'none',
+										title: errBill.msg
+									});
+								});
 							this.isClick = false;
 						});
 					/* } else {
@@ -927,6 +1012,19 @@
 			showModal(e) {
 				this.modalName = e.currentTarget.dataset.target;
 			},
+			showModal4(e) {
+				let me = this;
+				console.log(this.isScanOf)
+				if (me.isScanOf) {
+					me.modalName4 = e.currentTarget.dataset.target;
+				} else {
+					uni.scanCode({
+						success: function(res) {
+							me.form.FEntrySelf = res.result;
+						}
+					});
+				}
+			},
 			showModal2(index, item) {
 				/* if (item.stockId == null || item.stockId == '') {
 					return uni.showToast({
@@ -951,7 +1049,8 @@
 					positions: item.positions
 				};
 				this.borrowItem = item;
-			},showModal3(index, item) {
+			},
+			showModal3(index, item) {
 				/* if (item.stockId == null || item.stockId == '') {
 					return uni.showToast({
 						icon: 'none',
@@ -966,6 +1065,8 @@
 			},
 			hideModal(e) {
 				this.modalName = null;
+			},hideModal4(e) {
+				this.modalName4 = null;
 			},
 			hideModal2(e) {
 				this.modalName2 = null;
@@ -1063,16 +1164,25 @@
 					if (that.isOrder) {
 						for (let i in that.cuIList) {
 							if (choose[j]['FItemID'] == that.cuIList[i]['FItemID']) {
-								if (choose[j]['FStockNumber'] == that.cuIList[i]['stockId'] && choose[j]['FBatchNo'] ==
-									that.cuIList[i]['fbatchNo']) {
+								if (choose[j]['FStockNumber'] == that.cuIList[i]['stockId'] &&
+									choose[j]['FBatchNo'] == that.cuIList[i]['fbatchNo'] &&
+									choose[j]['FStockPlacename'] == that.cuIList[i]['positions']) {
 									if (choose[j]['quantity'] == null) {
 										choose[j]['quantity'] = 1;
 									}
 									if (choose[j]['isEnable'] == 2) {
 										choose[j]['uuid'] = null;
 									}
-									that.cuIList[i]['quantity'] = parseFloat(that.cuIList[i]['quantity']) + parseFloat(
-										choose[j]['quantity']);
+									if (that.cuIList[i]['quantity'] == choose[j]['FQty']) {
+										that.cuIList[i]['quantity'] = parseFloat(that.cuIList[i]['quantity']) + parseFloat(
+											choose[
+												j]['quantity']);
+									} else {
+										uni.showToast({
+											icon: 'none',
+											title: '出库数量不能大于库存数量！'
+										});
+									}
 									number++;
 									break;
 								}
@@ -1100,16 +1210,25 @@
 							choose[j].name = choose[j].FName;
 							choose[j].unitName = choose[j].FUnitName;
 							choose[j].model = choose[j].FModel;
+							choose[j].positions = choose[j].FStockPlacename;
 							choose[j].unitID = choose[j].FUnitID;
+							choose[j].maxQty = choose[j].FQty;
 							that.cuIList.push(choose[j]);
 							that.form.bNum = that.cuIList.length;
 						}
+						/* }else{
+								uni.showToast({
+									icon: 'none',
+									title: '该物料不在所选单据中！',
+								});
+							} */
 					} else {
 						for (let i in that.cuIList) {
 							if (
 								choose[j]['FItemID'] == that.cuIList[i]['FItemID'] &&
 								choose[j]['FStockNumber'] == that.cuIList[i]['stockId'] &&
-								choose[j]['FBatchNo'] == that.cuIList[i]['fbatchNo']
+								choose[j]['FBatchNo'] == that.cuIList[i]['fbatchNo'] &&
+								choose[j]['FStockPlacename'] == that.cuIList[i]['positions']
 							) {
 								if (choose[j]['quantity'] == null) {
 									choose[j]['quantity'] = 1;
@@ -1117,8 +1236,16 @@
 								if (choose[j]['isEnable'] == 2) {
 									choose[j]['uuid'] = null;
 								}
-								that.cuIList[i]['quantity'] = parseFloat(that.cuIList[i]['quantity']) + parseFloat(choose[
-									j]['quantity']);
+								if (Number(that.cuIList[i]['quantity']) < Number(choose[j]['FQty'])) {
+									that.cuIList[i]['quantity'] = parseFloat(that.cuIList[i]['quantity']) + parseFloat(
+										choose[
+											j]['quantity']);
+								} else {
+									uni.showToast({
+										icon: 'none',
+										title: '出库数量不能大于库存数量！'
+									});
+								}
 								number++;
 								break;
 							}
@@ -1139,11 +1266,14 @@
 							choose[j].unitName = choose[j].FUnitName;
 							choose[j].model = choose[j].FModel;
 							choose[j].unitID = choose[j].FUnitID;
+							choose[j].positions = choose[j].FStockPlacename;
+							choose[j].maxQty = choose[j].FQty;
 							that.cuIList.push(choose[j]);
 							that.form.bNum = that.cuIList.length;
 						}
 					}
 				}
+				that.show = false
 			},
 			fabClick() {
 				var that = this;
@@ -1172,13 +1302,13 @@
 					.then(reso => {
 						console.log(reso.data)
 						if (reso.success) {
-							that.chooseClick([reso.data[0]]);
-							/* let data = reso.data;
+							/* that.chooseClick([reso.data[0]]); */
+							let data = reso.data;
 							that.chooseList = []
 							for(let i in reso.data) {
 								that.chooseList.push(reso.data[i])				
 							} 
-							that.show = true */
+							that.show = true
 						}
 					})
 					.catch(err => {

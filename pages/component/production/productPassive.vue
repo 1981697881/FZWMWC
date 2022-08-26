@@ -70,7 +70,7 @@
 			</view>
 		</view>
 		<view class="cu-modal" :class="modalName2=='Modal'?'show':''">
-			<view class="cu-dialog" style="height: 350upx;">
+			<view class="cu-dialog" style="height: auto;">
 				<view class="cu-bar bg-white justify-end" style="height: 60upx;">
 					<view class="content">{{popupForm.headName}}</view>
 					<view class="action" @tap="hideModal2">
@@ -96,7 +96,7 @@
 							</view>
 						</view>
 					</view>
-					<view class="cu-item" style="width: 100%;">
+					<!-- <view class="cu-item" style="width: 100%;">
 						<view class="flex">
 							<view class="flex-sub">
 								<view class="cu-form-group">
@@ -108,7 +108,7 @@
 								</view>
 							</view>
 						</view>
-					</view>
+					</view> -->
 				</view>
 				<view style="clear: both;" class="cu-bar bg-white justify-end padding-bottom-xl">
 					<view class="action">
@@ -403,7 +403,7 @@
 					obj.fentryId = list[i].index
 					obj.finBillNo = this.form.finBillNo
 					obj.fitemId = list[i].number
-					if (list[i].FBatchManager) {
+					/* if (list[i].FBatchManager) {
 						if (list[i].fbatchNo != '' && list[i].fbatchNo != null) {
 							obj.fbatchNo = list[i].fbatchNo
 							isBatchNo = true
@@ -421,7 +421,7 @@
 							batchMsg = '批号未启用，不允许输入'
 							break
 						}
-					}
+					} */
 					obj.fauxprice = list[i].Fauxprice != null && typeof list[i].Fauxprice != "undefined" ? list[i]
 						.Fauxprice : 0
 					obj.famount = list[i].Famount != null && typeof list[i].Famount != "undefined" ? list[i].Famount : 0
@@ -448,7 +448,7 @@
 				portData.fdeptId = this.form.fdeptID
 				console.log(JSON.stringify(portData))
 				if (result.length == 0) {
-					if (isBatchNo) {
+					/* if (isBatchNo) { */
 						production.productStockIn(portData).then(res => {
 							if (res.success) {
 								this.cuIList = []
@@ -476,15 +476,27 @@
 								icon: 'none',
 								title: err.msg,
 							});
+							basic.getBillNo({
+								'TranType': 2
+							}).then(resBill => {
+								if (resBill.success) {
+									me.form.finBillNo = resBill.data
+								}
+							}).catch(errBill => {
+								uni.showToast({
+									icon: 'none',
+									title: errBill.msg,
+								});
+							});
 							this.isClick = false
 						})
-					} else {
+					/* } else {
 						uni.showToast({
 							icon: 'none',
 							title: batchMsg,
 						});
 						this.isClick = false
-					}
+					} */
 				} else {
 					uni.showToast({
 						icon: 'none',
@@ -715,7 +727,8 @@
 						number: resData[0]
 					})
 					.then(reso => {
-						if (reso.success) {
+						console.log(reso)
+						if (reso.success && reso.data.length>0) {
 							if (that.isOrder) {
 								for (let i in that.cuIList) {
 									if (resData[0] == that.cuIList[i]['FNumber']) {
@@ -766,6 +779,10 @@
 									reso.data[0]['quantity'] = 1
 									reso.data[0]['fbatchNo'] = resData[1]
 									reso.data[0]['onFBarCode'] = [res]
+									reso.data[0]['name'] = reso.data[0]['FName']
+									reso.data[0]['number'] = reso.data[0]['FNumber']
+									reso.data[0]['unitName'] = reso.data[0]['FUnitName']
+									reso.data[0]['model'] = reso.data[0]['FModel']
 									that.cuIList.push(reso.data[0])
 									that.form.bNum = that.cuIList.length
 								}
